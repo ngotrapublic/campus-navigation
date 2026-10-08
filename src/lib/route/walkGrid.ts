@@ -1,4 +1,4 @@
-import type { Floor, Point } from '../../types'
+import type { Floor, Point, Room } from '../../types'
 
 export type WalkRect = {
   x: number
@@ -8,6 +8,7 @@ export type WalkRect = {
 }
 
 export const CELL = 8
+export const CLEARANCE = 14
 export const EPSILON = 0.5
 
 export function dist(a: Point, b: Point): number {
@@ -20,6 +21,29 @@ export function manhattan(a: Point, b: Point): number {
 
 export function samePoint(a: Point, b: Point, eps = EPSILON): boolean {
   return Math.abs(a.x - b.x) < eps && Math.abs(a.y - b.y) < eps
+}
+
+export function expandRect(rect: WalkRect, margin: number): WalkRect {
+  return {
+    x: rect.x - margin,
+    y: rect.y - margin,
+    width: rect.width + margin * 2,
+    height: rect.height + margin * 2,
+  }
+}
+
+export function insetRect(rect: WalkRect, margin: number): WalkRect | null {
+  const width = rect.width - margin * 2
+  const height = rect.height - margin * 2
+  if (width < CELL || height < CELL) {
+    return null
+  }
+  return {
+    x: rect.x + margin,
+    y: rect.y + margin,
+    width,
+    height,
+  }
 }
 
 export function walkableRects(floor: Floor): WalkRect[] {
@@ -35,7 +59,48 @@ export function walkableRects(floor: Floor): WalkRect[] {
   return [...passages, ...opens]
 }
 
-function pointInRect(point: Point, rect: WalkRect, pad = 0): boolean {
+export function preferredWalkRects(
+  floor: Floor,
+  clearance = CLEARANCE,
+): WalkRect[] {
+  const raw = walkableRects(floor)
+  const inset = raw
+    .map((rect) => insetRect(rect, clearance))
+    .filter((rect): rect is WalkRect => rect !== null)
+  if (inset.length > 0) {
+    return inset
+  }
+  const half = raw
+    .map((rect) => insetRect(rect, Math.max(4, Math.floor(clearance / 2))))
+    .filter((rect): rect is WalkRect => rect !== null)
+  return half.length > 0 ? half : raw
+}
+
+export function solidBlockRects(floor: Floor): WalkRect[] {
+  const walls = floor.walls ?? []
+  const rooms = floor.rooms
+    .filter((room) => room.kind !== 'open')
+    .map((room) => ({
+      x: room.x,
+      y: room.y,
+      width: room.width,
+      height: room.height,
+    }))
+  return [...walls, ...rooms]
+}
+
+export function obstacleRects(
+  floor: Floor,
+  clearance = CLEARANCE,
+): WalkRect[] {
+  return solidBlockRects(floor).map((rect) => expandRect(rect, clearance))
+}
+
+export function pointInAny(point: Point, rects: WalkRect[], pad = 0): boolean {
+  return rects.some((rect) => pointInRect(point, rect, pad))
+}
+
+export function pointInRect(point: Point, rect: WalkRect, pad = 0): boolean {
   return (
     point.x >= rect.x - pad &&
     point.x <= rect.x + rect.width + pad &&
@@ -73,6 +138,26 @@ export function snapToWalkable(rects: WalkRect[], point: Point): Point | null {
   return best
 }
 
+export function approachPointForDoor(
+  door: Point,
+  side: Room['doorSide'] | null | undefined,
+  clearance = CLEARANCE,
+): Point {
+  if (side === 'n') {
+    return { x: door.x, y: door.y - clearance }
+  }
+  if (side === 'e') {
+    return { x: door.x + clearance, y: door.y }
+  }
+  if (side === 's') {
+    return { x: door.x, y: door.y + clearance }
+  }
+  if (side === 'w') {
+    return { x: door.x - clearance, y: door.y }
+  }
+  return door
+}
+
 function boundsOf(rects: WalkRect[]): WalkRect | null {
   if (rects.length === 0) {
     return null
@@ -95,9 +180,12 @@ function boundsOf(rects: WalkRect[]): WalkRect | null {
   }
 }
 
-export function buildWalkGrid(rects: WalkRect[]) {
-  const bounds = boundsOf(rects)
-  if (!bounds) {
+export function buildWalkGrid(
+  walkRects: WalkRect[],
+  solids: WalkRect[] = [],
+) {
+  const bounds = boundsOf([...walkRects, ...solids])
+  if (!bounds || walkRects.length === 0) {
     return null
   }
   const cols = Math.max(1, Math.ceil(bounds.width / CELL) + 1)
@@ -109,9 +197,13 @@ export function buildWalkGrid(rects: WalkRect[]) {
         x: bounds.x + col * CELL + CELL / 2,
         y: bounds.y + row * CELL + CELL / 2,
       }
-      if (rects.some((rect) => pointInRect(point, rect, 0.5))) {
-        walk[row * cols + col] = 1
+      if (!pointInAny(point, walkRects, 0.5)) {
+        continue
       }
+      if (pointInAny(point, solids, 0)) {
+        continue
+      }
+      walk[row * cols + col] = 1
     }
   }
   return { bounds, cols, rows, walk }
@@ -162,4 +254,31 @@ export function nearestWalkCell(
     }
   }
   return best
+}
+
+export function axisSegmentOnWalk(
+  grid: WalkGrid,
+  a: Point,
+  b: Point,
+): boolean {
+  const dx = b.x - a.x
+  const dy = b.y - a.y
+  if (Math.abs(dx) >= EPSILON && Math.abs(dy) >= EPSILON) {
+    return false
+  }
+  const length = Math.abs(dx) + Math.abs(dy)
+  if (length < EPSILON) {
+    const cell = toCell(grid, a)
+    return Boolean(grid.walk[cell.row * grid.cols + cell.col])
+  }
+  const steps = Math.max(1, Math.ceil(length / (CELL / 2)))
+  for (let i = 0; i <= steps; i += 1) {
+    const t = i / steps
+    const point = { x: a.x + dx * t, y: a.y + dy * t }
+    const cell = toCell(grid, point)
+    if (!grid.walk[cell.row * grid.cols + cell.col]) {
+      return false
+    }
+  }
+  return true
 }

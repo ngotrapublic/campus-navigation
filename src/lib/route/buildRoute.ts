@@ -21,6 +21,43 @@ function roomTarget(room: Room): Point {
   }
 }
 
+function pathToRoom(floor: Building['floors'][number], start: Point, room: Room) {
+  const end = roomTarget(room)
+  return pathOnFloor(floor, start, end, {
+    endRoom: room,
+    endDoor: room.doorSide ? end : null,
+    endDoorSide: room.doorSide,
+  })
+}
+
+function pathToElevator(
+  floor: Building['floors'][number],
+  start: Point,
+  elevator: Elevator,
+) {
+  const end = elevTarget(elevator)
+  return pathOnFloor(floor, start, end, {
+    endDoor: end,
+    endDoorSide: elevator.doorSide,
+  })
+}
+
+function pathFromElevator(
+  floor: Building['floors'][number],
+  elevator: Elevator,
+  end: Point,
+  endRoom?: Room | null,
+) {
+  const start = elevTarget(elevator)
+  return pathOnFloor(floor, start, end, {
+    startDoor: start,
+    startDoorSide: elevator.doorSide,
+    endRoom: endRoom ?? null,
+    endDoor: endRoom?.doorSide ? end : null,
+    endDoorSide: endRoom?.doorSide ?? null,
+  })
+}
+
 function nearestElevator(
   elevators: Elevator[],
   from: Point,
@@ -69,13 +106,12 @@ export function buildRoute(
     if (!elevator) {
       return null
     }
-    const end = elevTarget(elevator)
     return {
       legs: [
         {
           floorId: startFloor.id,
           floorName: startFloor.name,
-          points: pathOnFloor(startFloor, startPoint, end),
+          points: pathToElevator(startFloor, startPoint, elevator),
         },
       ],
       summary: `Walk to ${elevator.label}`,
@@ -96,7 +132,7 @@ export function buildRoute(
         {
           floorId: startFloor.id,
           floorName: startFloor.name,
-          points: pathOnFloor(startFloor, startPoint, end),
+          points: pathToRoom(startFloor, startPoint, destRoom),
         },
       ],
       summary: `Walk to ${destRoom.name}`,
@@ -118,19 +154,18 @@ export function buildRoute(
     }
   }
 
-  const elevPoint = elevTarget(elevator)
   return {
     legs: [
       {
         floorId: startFloor.id,
         floorName: startFloor.name,
-        points: pathOnFloor(startFloor, startPoint, elevPoint),
+        points: pathToElevator(startFloor, startPoint, elevator),
         note: `Take ${elevator.label} to floor ${destFloor.name}`,
       },
       {
         floorId: destFloor.id,
         floorName: destFloor.name,
-        points: pathOnFloor(destFloor, elevPoint, end),
+        points: pathFromElevator(destFloor, elevator, end, destRoom),
       },
     ],
     summary: `${startFloor.name} → ${elevator.label} → ${destFloor.name} · ${destRoom.name}`,
