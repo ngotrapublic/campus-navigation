@@ -1,0 +1,24 @@
+.app-shell {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) 300px;
+  min-height: 100vh;
+  gap: 12px;
+  padding: 12px;
+}
+
+.sidebar,
+.properties {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 18px;
+  overflow: auto;
+}
+
+.workspace {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px;
+  min-width: 0;
+}

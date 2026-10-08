@@ -1,0 +1,128 @@
+.go-page {
+  min-height: 100dvh;
+  padding: 16px 16px 32px;
+  background: linear-gradient(180deg, #eef3f0 0%, #f7faf8 40%, #ffffff 100%);
+  color: #1c2d26;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  box-sizing: border-box;
+}
+
+.go-header h1 {
+  margin: 0 0 4px;
+  font-size: 1.4rem;
+}
+
+.go-header p {
+  margin: 0 0 16px;
+  color: #4d5f57;
+  font-size: 0.95rem;
+}
+
+.go-dest {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.go-dest select {
+  font: inherit;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #c5d0ca;
+  background: #fff;
+}
+
+.go-summary {
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+
+.go-hint,
+.go-error,
+.go-note {
+  color: #4d5f57;
+  line-height: 1.4;
+}
+
+.go-error {
+  color: #9b2c2c;
+  font-weight: 600;
+}
+
+.go-note {
+  background: #fff4ec;
+  border: 1px solid #efc7ad;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 0 0 12px;
+}
+
+.go-legs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.go-legs button {
+  border: 1px solid #c5d0ca;
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font: inherit;
+}
+
+.go-legs button.active {
+  background: #1c2d26;
+  color: #fff;
+  border-color: #1c2d26;
+}
+
+.go-map-wrap {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #d0dbd5;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(28, 45, 38, 0.08);
+}
+
+.go-map {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 280px;
+  max-height: 62dvh;
+}
+
+.go-room-label {
+  font-size: 11px;
+  fill: #24352e;
+  pointer-events: none;
+}
+
+.go-legend {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin: 12px 0 0;
+  color: #4d5f57;
+  font-size: 0.9rem;
+}
+
+.go-legend .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.go-legend .dot.start {
+  background: #1f7a45;
+}
+
+.go-legend .dot.end {
+  background: #c45c26;
+}

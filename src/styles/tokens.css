@@ -1,0 +1,40 @@
+:root {
+  --bg: #e7eee8;
+  --panel: #f7faf7;
+  --ink: #1c2d26;
+  --muted: #5d6f66;
+  --line: #c9d5ce;
+  --accent: #2f6f5e;
+  --accent-dark: #1f4f43;
+  --warm: #c45c26;
+  --danger: #9b2c2c;
+  --shadow: 0 10px 30px rgba(28, 45, 38, 0.08);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(47, 111, 94, 0.12), transparent 40%),
+    radial-gradient(circle at bottom right, rgba(196, 92, 38, 0.1), transparent 35%),
+    linear-gradient(160deg, #dfe8e1 0%, #eef3ee 45%, #e4ebe4 100%);
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
