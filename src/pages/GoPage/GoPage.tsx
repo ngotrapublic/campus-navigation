@@ -29,8 +29,8 @@ export function GoPage() {
         </header>
         <p className="go-error">{error}</p>
         <p className="go-hint">
-          On the laptop: keep Map Studio open at the same Wi‑Fi address so the map
-          syncs, then scan again.
+          Could not load the map. Redeploy after updating public map data, then
+          scan the QR again.
         </p>
       </div>
     )

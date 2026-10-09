@@ -1,3 +1,8 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/((?!api/|campus-state\\.json|campus-navigation-data\\.json).*)",
+      "destination": "/index.html"
+    }
+  ]
 }

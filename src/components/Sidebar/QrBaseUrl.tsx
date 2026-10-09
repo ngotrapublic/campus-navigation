@@ -14,9 +14,9 @@ export function QrBaseUrl({ baseUrl, setBaseUrl }: QrBaseUrlProps) {
         placeholder="https://nav.example.edu"
       />
       <p className="hint">
-        For phone test on Wi‑Fi: set this to your laptop LAN URL, e.g.
-        http://192.168.x.x:5173 — then re-select the QR point so the code
-        updates.
+        Public host URL for QR codes, e.g. https://your-app.vercel.app — then
+        re-select the QR point so the code updates. Leave empty to use the
+        current site origin.
       </p>
     </section>
   )

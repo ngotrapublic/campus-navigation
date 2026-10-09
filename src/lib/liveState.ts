@@ -1,4 +1,25 @@
 import type { AppState } from '../types'
+import { createDefaultState, migrateState } from './storage'
+
+async function readJsonState(url: string): Promise<AppState | null> {
+  try {
+    const response = await fetch(url, { cache: 'no-store' })
+    if (!response.ok) {
+      return null
+    }
+    const contentType = response.headers.get('content-type') ?? ''
+    if (!contentType.includes('application/json')) {
+      return null
+    }
+    const parsed = (await response.json()) as AppState
+    if (!parsed.buildings || !Array.isArray(parsed.buildings)) {
+      return null
+    }
+    return migrateState(parsed)
+  } catch {
+    return null
+  }
+}
 
 export async function publishCampusState(state: AppState): Promise<void> {
   try {
@@ -13,13 +34,17 @@ export async function publishCampusState(state: AppState): Promise<void> {
 }
 
 export async function fetchCampusState(): Promise<AppState> {
-  const response = await fetch('/api/campus-state', {
-    cache: 'no-store',
-  })
-  if (!response.ok) {
-    throw new Error(
-      'Map not published yet. Open Map Studio on the laptop first so it syncs.',
-    )
+  const fromApi = await readJsonState('/api/campus-state')
+  if (fromApi) {
+    return fromApi
   }
-  return (await response.json()) as AppState
+  const fromPublic = await readJsonState('/campus-state.json')
+  if (fromPublic) {
+    return fromPublic
+  }
+  const fromSeedFile = await readJsonState('/campus-navigation-data.json')
+  if (fromSeedFile) {
+    return fromSeedFile
+  }
+  return createDefaultState()
 }

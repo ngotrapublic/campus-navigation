@@ -7,7 +7,6 @@
       "id": "bldg_7602b601",
       "name": "485LQD",
       "location": "Campus A",
-      "yardLinkEnabled": false,
       "site": {
         "splitAxis": "horizontal",
         "yardFirst": true,
@@ -16,6 +15,7 @@
         "buildingWidthM": 20,
         "buildingHeightM": 10
       },
+      "yardLinkEnabled": true,
       "elevators": [
         {
           "id": "elev_907590ef",
@@ -55,7 +55,8 @@
               "y": 441.3574426088643,
               "width": 418.340078077031,
               "height": 310.3464207487824,
-              "doorSide": null
+              "doorSide": "n",
+              "doorAlong": 0.9
             },
             {
               "id": "room_eb861248",
@@ -66,7 +67,8 @@
               "y": 441.6535792512176,
               "width": 376.84282364519026,
               "height": 310.0502841064291,
-              "doorSide": null
+              "doorSide": "n",
+              "doorAlong": 0.12
             }
           ],
           "walls": [
@@ -94,7 +96,30 @@
               "height": 158.98691258455096
             }
           ],
-          "qrMarkers": []
+          "qrMarkers": [
+            {
+              "label": "QR B-1",
+              "x": 1030.1410713068644,
+              "y": 542.8381685138884,
+              "id": "qr_03915dbe"
+            }
+          ],
+          "yardDoors": [
+            {
+              "id": "yard_dffad2f6",
+              "x": 506.5566474533081,
+              "y": 306.66666666666663,
+              "doorSide": null,
+              "label": "Yard door 1"
+            },
+            {
+              "id": "yard_98f50683",
+              "x": 731.9700116043999,
+              "y": 306.66666666666663,
+              "doorSide": null,
+              "label": "Yard door 2"
+            }
+          ]
         },
         {
           "id": "floor_66a9a371",
@@ -111,7 +136,8 @@
               "y": 575.3063886964437,
               "width": 336.78863795700954,
               "height": 176.69361130355628,
-              "doorSide": "n"
+              "doorSide": "n",
+              "doorAlong": 0.5
             },
             {
               "id": "room_cc69a0eb",
@@ -122,7 +148,8 @@
               "y": 575.3063886964437,
               "width": 300.7404460072687,
               "height": 176.69361130355628,
-              "doorSide": null
+              "doorSide": null,
+              "doorAlong": 0.5
             },
             {
               "id": "room_ccec8ae1",
@@ -133,7 +160,8 @@
               "y": 663.6531943482219,
               "width": 74.73220190118997,
               "height": 51.275782211387764,
-              "doorSide": null
+              "doorSide": null,
+              "doorAlong": 0.5
             },
             {
               "id": "room_09399050",
@@ -144,7 +172,8 @@
               "y": 612.3774121368341,
               "width": 74.73220190118997,
               "height": 51.275782211387764,
-              "doorSide": null
+              "doorSide": null,
+              "doorAlong": 0.5
             },
             {
               "id": "room_18446270",
@@ -155,7 +184,8 @@
               "y": 575.3063886964437,
               "width": 336.78863795700954,
               "height": 176.69361130355628,
-              "doorSide": "n"
+              "doorSide": "n",
+              "doorAlong": 0.5
             },
             {
               "id": "room_6c35e069",
@@ -166,7 +196,8 @@
               "y": 663.6531943482219,
               "width": 74.73220190118997,
               "height": 51.275782211387764,
-              "doorSide": null
+              "doorSide": null,
+              "doorAlong": 0.5
             },
             {
               "id": "room_bfa90572",
@@ -177,7 +208,8 @@
               "y": 612.3774121368341,
               "width": 74.73220190118997,
               "height": 51.275782211387764,
-              "doorSide": null
+              "doorSide": null,
+              "doorAlong": 0.5
             },
             {
               "id": "room_376da4a1",
@@ -188,7 +220,8 @@
               "y": 282.66666666666663,
               "width": 673.5772759140191,
               "height": 292.6397220297771,
-              "doorSide": null
+              "doorSide": null,
+              "doorAlong": 0.5
             }
           ],
           "walls": [],
@@ -215,6 +248,22 @@
               "y": 290.66666666666663,
               "id": "qr_955029c0"
             }
+          ],
+          "yardDoors": [
+            {
+              "id": "yard_b621ac5b",
+              "x": 813.7887385454633,
+              "y": 306.66666666666663,
+              "doorSide": null,
+              "label": "Yard door 2"
+            },
+            {
+              "id": "yard_0aea5b02",
+              "x": 348.66990763073875,
+              "y": 306.66666666666663,
+              "doorSide": null,
+              "label": "Yard door 2"
+            }
           ]
         },
         {
@@ -232,7 +281,8 @@
               "y": 527.7914152124074,
               "width": 299.5850895312957,
               "height": 224.2085847875926,
-              "doorSide": null
+              "doorSide": null,
+              "doorAlong": 0.5
             },
             {
               "id": "room_2aa65ee6",
@@ -243,7 +293,8 @@
               "y": 282.66666666666663,
               "width": 383.5209890306942,
               "height": 179.92003796822604,
-              "doorSide": null
+              "doorSide": null,
+              "doorAlong": 0.5
             },
             {
               "id": "room_e4b6eaf5",
@@ -254,7 +305,8 @@
               "y": 639.8957076062037,
               "width": 63.96565786615923,
               "height": 66.4987422361944,
-              "doorSide": null
+              "doorSide": null,
+              "doorAlong": 0.5
             },
             {
               "id": "room_1727e9dc",
@@ -265,7 +317,8 @@
               "y": 577.7189372282771,
               "width": 63.96565786615923,
               "height": 62.17677037792657,
-              "doorSide": null
+              "doorSide": null,
+              "doorAlong": 0.5
             },
             {
               "id": "room_b9cda527",
@@ -276,7 +329,8 @@
               "y": 527.7914152124074,
               "width": 299.5850895312957,
               "height": 224.2085847875926,
-              "doorSide": null
+              "doorSide": null,
+              "doorAlong": 0.5
             },
             {
               "id": "room_be3d89f3",
@@ -287,7 +341,8 @@
               "y": 282.66666666666663,
               "width": 383.5209890306942,
               "height": 179.92003796822604,
-              "doorSide": null
+              "doorSide": null,
+              "doorAlong": 0.5
             },
             {
               "id": "room_6e2e2668",
@@ -298,7 +353,8 @@
               "y": 639.8957076062037,
               "width": 63.96565786615923,
               "height": 66.4987422361944,
-              "doorSide": null
+              "doorSide": null,
+              "doorAlong": 0.5
             },
             {
               "id": "room_e626eda8",
@@ -309,7 +365,8 @@
               "y": 577.7189372282771,
               "width": 63.96565786615923,
               "height": 62.17677037792657,
-              "doorSide": null
+              "doorSide": null,
+              "doorAlong": 0.5
             }
           ],
           "walls": [],
@@ -343,11 +400,12 @@
               "height": 65.20471057751473
             }
           ],
-          "qrMarkers": []
+          "qrMarkers": [],
+          "yardDoors": []
         }
       ]
     }
   ],
   "activeBuildingId": "bldg_7602b601",
-  "activeFloorId": "floor_66a9a371"
+  "activeFloorId": "floor_f3ebcdf5"
 }

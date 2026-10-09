@@ -1,0 +1,411 @@
+{
+  "settings": {
+    "baseUrl": ""
+  },
+  "buildings": [
+    {
+      "id": "bldg_7602b601",
+      "name": "485LQD",
+      "location": "Campus A",
+      "site": {
+        "splitAxis": "horizontal",
+        "yardFirst": true,
+        "yardWidthM": 20,
+        "yardHeightM": 5,
+        "buildingWidthM": 20,
+        "buildingHeightM": 10
+      },
+      "yardLinkEnabled": true,
+      "elevators": [
+        {
+          "id": "elev_907590ef",
+          "side": "left",
+          "x": 158.66666666666669,
+          "y": 497.35510811280477,
+          "width": 56,
+          "height": 56,
+          "label": "Elevator L",
+          "doorSide": "e"
+        },
+        {
+          "id": "elev_749e019e",
+          "side": "right",
+          "x": 1041.3333333333333,
+          "y": 497.35510811280477,
+          "width": 56,
+          "height": 56,
+          "label": "Elevator R",
+          "doorSide": "w"
+        }
+      ],
+      "emergencyExits": [],
+      "floors": [
+        {
+          "id": "floor_f3ebcdf5",
+          "name": "B",
+          "order": 0,
+          "corridor": [],
+          "rooms": [
+            {
+              "id": "room_2a82ce68",
+              "kind": "room",
+              "name": "Teacher parking",
+              "code": "B.01",
+              "x": 130.66666666666669,
+              "y": 441.3574426088643,
+              "width": 418.340078077031,
+              "height": 310.3464207487824,
+              "doorSide": "n",
+              "doorAlong": 0.9
+            },
+            {
+              "id": "room_eb861248",
+              "kind": "room",
+              "name": "Student parking",
+              "code": "B.02",
+              "x": 692.490509688143,
+              "y": 441.6535792512176,
+              "width": 376.84282364519026,
+              "height": 310.0502841064291,
+              "doorSide": "n",
+              "doorAlong": 0.12
+            }
+          ],
+          "walls": [
+            {
+              "id": "wall_1d922426",
+              "x": 549.0067447436977,
+              "y": 282.66666666666663,
+              "width": 143.48376494444528,
+              "height": 469.3333333333333
+            }
+          ],
+          "passages": [
+            {
+              "id": "path_d3b08061",
+              "x": 692.490509688143,
+              "y": 282.66666666666663,
+              "width": 81.03579785609907,
+              "height": 160.85789234295567
+            },
+            {
+              "id": "path_8ec5eaa2",
+              "x": 463.46700690379726,
+              "y": 282.66666666666663,
+              "width": 85.53973783990045,
+              "height": 158.98691258455096
+            }
+          ],
+          "qrMarkers": [
+            {
+              "label": "QR B-1",
+              "x": 1030.1410713068644,
+              "y": 542.8381685138884,
+              "id": "qr_03915dbe"
+            }
+          ],
+          "yardDoors": [
+            {
+              "id": "yard_dffad2f6",
+              "x": 506.5566474533081,
+              "y": 306.66666666666663,
+              "doorSide": null,
+              "label": "Yard door 1"
+            },
+            {
+              "id": "yard_98f50683",
+              "x": 731.9700116043999,
+              "y": 306.66666666666663,
+              "doorSide": null,
+              "label": "Yard door 2"
+            }
+          ]
+        },
+        {
+          "id": "floor_66a9a371",
+          "name": "G",
+          "order": 1,
+          "corridor": [],
+          "rooms": [
+            {
+              "id": "room_2d2e697a",
+              "kind": "room",
+              "name": "Academic",
+              "code": "G.01",
+              "x": 263.21136204299046,
+              "y": 575.3063886964437,
+              "width": 336.78863795700954,
+              "height": 176.69361130355628,
+              "doorSide": "n",
+              "doorAlong": 0.5
+            },
+            {
+              "id": "room_cc69a0eb",
+              "kind": "room",
+              "name": "HQ",
+              "code": "G.02",
+              "x": 600,
+              "y": 575.3063886964437,
+              "width": 300.7404460072687,
+              "height": 176.69361130355628,
+              "doorSide": null,
+              "doorAlong": 0.5
+            },
+            {
+              "id": "room_ccec8ae1",
+              "kind": "wc_male",
+              "name": "WC Male",
+              "code": "WC-M-G",
+              "x": 130.66666666666669,
+              "y": 663.6531943482219,
+              "width": 74.73220190118997,
+              "height": 51.275782211387764,
+              "doorSide": null,
+              "doorAlong": 0.5
+            },
+            {
+              "id": "room_09399050",
+              "kind": "wc_female",
+              "name": "WC Female",
+              "code": "WC-F-G",
+              "x": 130.66666666666669,
+              "y": 612.3774121368341,
+              "width": 74.73220190118997,
+              "height": 51.275782211387764,
+              "doorSide": null,
+              "doorAlong": 0.5
+            },
+            {
+              "id": "room_18446270",
+              "kind": "room",
+              "name": "Academic",
+              "code": "G.01",
+              "x": 600,
+              "y": 575.3063886964437,
+              "width": 336.78863795700954,
+              "height": 176.69361130355628,
+              "doorSide": "n",
+              "doorAlong": 0.5
+            },
+            {
+              "id": "room_6c35e069",
+              "kind": "wc_male",
+              "name": "WC Male",
+              "code": "WC-M-G",
+              "x": 994.6011314321433,
+              "y": 663.6531943482219,
+              "width": 74.73220190118997,
+              "height": 51.275782211387764,
+              "doorSide": null,
+              "doorAlong": 0.5
+            },
+            {
+              "id": "room_bfa90572",
+              "kind": "wc_female",
+              "name": "WC Female",
+              "code": "WC-F-G",
+              "x": 994.6011314321433,
+              "y": 612.3774121368341,
+              "width": 74.73220190118997,
+              "height": 51.275782211387764,
+              "doorSide": null,
+              "doorAlong": 0.5
+            },
+            {
+              "id": "room_376da4a1",
+              "kind": "open",
+              "name": "Open space 8",
+              "code": "OS-G-08",
+              "x": 263.21136204299046,
+              "y": 282.66666666666663,
+              "width": 673.5772759140191,
+              "height": 292.6397220297771,
+              "doorSide": null,
+              "doorAlong": 0.5
+            }
+          ],
+          "walls": [],
+          "passages": [
+            {
+              "id": "path_28ffb2b1",
+              "x": 205.39886856785665,
+              "y": 282.66666666666663,
+              "width": 57.812493475133806,
+              "height": 469.3333333333333
+            },
+            {
+              "id": "path_a65f8eeb",
+              "x": 936.7886379570095,
+              "y": 282.66666666666663,
+              "width": 57.812493475133806,
+              "height": 469.3333333333333
+            }
+          ],
+          "qrMarkers": [
+            {
+              "label": "QR G-1",
+              "x": 411.29367800553837,
+              "y": 290.66666666666663,
+              "id": "qr_955029c0"
+            }
+          ],
+          "yardDoors": [
+            {
+              "id": "yard_b621ac5b",
+              "x": 813.7887385454633,
+              "y": 306.66666666666663,
+              "doorSide": null,
+              "label": "Yard door 2"
+            },
+            {
+              "id": "yard_0aea5b02",
+              "x": 348.66990763073875,
+              "y": 306.66666666666663,
+              "doorSide": null,
+              "label": "Yard door 2"
+            }
+          ]
+        },
+        {
+          "id": "floor_79d5f33e",
+          "name": "4",
+          "order": 2,
+          "corridor": [],
+          "rooms": [
+            {
+              "id": "room_e9568418",
+              "kind": "room",
+              "name": "Creative1",
+              "code": "4.04",
+              "x": 300.4149104687043,
+              "y": 527.7914152124074,
+              "width": 299.5850895312957,
+              "height": 224.2085847875926,
+              "doorSide": null,
+              "doorAlong": 0.5
+            },
+            {
+              "id": "room_2aa65ee6",
+              "kind": "room",
+              "name": "Something 1",
+              "code": "4.02",
+              "x": 216.47901096930582,
+              "y": 282.66666666666663,
+              "width": 383.5209890306942,
+              "height": 179.92003796822604,
+              "doorSide": null,
+              "doorAlong": 0.5
+            },
+            {
+              "id": "room_e4b6eaf5",
+              "kind": "wc_male",
+              "name": "WC Male",
+              "code": "WC-M-4",
+              "x": 130.66666666666669,
+              "y": 639.8957076062037,
+              "width": 63.96565786615923,
+              "height": 66.4987422361944,
+              "doorSide": null,
+              "doorAlong": 0.5
+            },
+            {
+              "id": "room_1727e9dc",
+              "kind": "wc_female",
+              "name": "WC Female",
+              "code": "WC-F-4",
+              "x": 130.66666666666669,
+              "y": 577.7189372282771,
+              "width": 63.96565786615923,
+              "height": 62.17677037792657,
+              "doorSide": null,
+              "doorAlong": 0.5
+            },
+            {
+              "id": "room_b9cda527",
+              "kind": "room",
+              "name": "Creative 2",
+              "code": "4.03",
+              "x": 600,
+              "y": 527.7914152124074,
+              "width": 299.5850895312957,
+              "height": 224.2085847875926,
+              "doorSide": null,
+              "doorAlong": 0.5
+            },
+            {
+              "id": "room_be3d89f3",
+              "kind": "room",
+              "name": "Something 2",
+              "code": "4.01",
+              "x": 600,
+              "y": 282.66666666666663,
+              "width": 383.5209890306942,
+              "height": 179.92003796822604,
+              "doorSide": null,
+              "doorAlong": 0.5
+            },
+            {
+              "id": "room_6e2e2668",
+              "kind": "wc_male",
+              "name": "WC Male",
+              "code": "WC-M-4",
+              "x": 1005.3676754671741,
+              "y": 639.8957076062037,
+              "width": 63.96565786615923,
+              "height": 66.4987422361944,
+              "doorSide": null,
+              "doorAlong": 0.5
+            },
+            {
+              "id": "room_e626eda8",
+              "kind": "wc_female",
+              "name": "WC Female",
+              "code": "WC-F-4",
+              "x": 1005.3676754671741,
+              "y": 577.7189372282771,
+              "width": 63.96565786615923,
+              "height": 62.17677037792657,
+              "doorSide": null,
+              "doorAlong": 0.5
+            }
+          ],
+          "walls": [],
+          "passages": [
+            {
+              "id": "path_3b839019",
+              "x": 194.63232453282592,
+              "y": 462.58670463489267,
+              "width": 105.78258593587839,
+              "height": 289.41329536510733
+            },
+            {
+              "id": "path_4e7f03b5",
+              "x": 300.4149104687043,
+              "y": 462.58670463489267,
+              "width": 299.5850895312957,
+              "height": 65.20471057751473
+            },
+            {
+              "id": "path_c177ad35",
+              "x": 899.5850895312957,
+              "y": 462.58670463489267,
+              "width": 105.78258593587839,
+              "height": 289.41329536510733
+            },
+            {
+              "id": "path_6ad1c4e6",
+              "x": 600,
+              "y": 462.58670463489267,
+              "width": 299.5850895312957,
+              "height": 65.20471057751473
+            }
+          ],
+          "qrMarkers": [],
+          "yardDoors": []
+        }
+      ]
+    }
+  ],
+  "activeBuildingId": "bldg_7602b601",
+  "activeFloorId": "floor_f3ebcdf5"
+}

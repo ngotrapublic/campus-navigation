@@ -126,7 +126,7 @@ export function loadState(): AppState {
   }
 }
 
-function migrateState(parsed: AppState): AppState {
+export function migrateState(parsed: AppState): AppState {
   const buildings = parsed.buildings.map((building) =>
     migrateBuilding(building as LegacyBuilding),
   )
