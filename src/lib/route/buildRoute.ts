@@ -108,14 +108,65 @@ type WcCandidate = {
   score: number
 }
 
+const YARD_TRANSFER_COST = 40
+const ELEVATOR_FLOOR_COST = 80
+
+function yardTransferScore(
+  building: Building,
+  startFloorId: string,
+  startPoint: Point,
+  destFloor: Floor,
+  destPoint: Point,
+): number | null {
+  if (!canUseYardLink(building, startFloorId, destFloor.id)) {
+    return null
+  }
+  const startFloor = building.floors.find((floor) => floor.id === startFloorId)
+  if (!startFloor) {
+    return null
+  }
+  const startDoor = nearestYardDoor(startFloor, startPoint)
+  const destDoor = nearestYardDoor(destFloor, destPoint)
+  if (!startDoor || !destDoor) {
+    return null
+  }
+  return (
+    dist(startPoint, yardDoorPoint(startDoor)) +
+    dist(yardDoorPoint(destDoor), destPoint) +
+    YARD_TRANSFER_COST
+  )
+}
+
+function elevatorTransferScore(
+  building: Building,
+  startFloorId: string,
+  startPoint: Point,
+  destFloor: Floor,
+  destPoint: Point,
+): { score: number; elevator: Elevator } | null {
+  const elevator = nearestElevator(building.elevators ?? [], startPoint)
+  if (!elevator) {
+    return null
+  }
+  const startFloor = building.floors.find((floor) => floor.id === startFloorId)
+  const floorDelta = Math.abs(
+    destFloor.order - (startFloor?.order ?? destFloor.order),
+  )
+  return {
+    elevator,
+    score:
+      dist(startPoint, elevTarget(elevator)) +
+      dist(elevTarget(elevator), destPoint) +
+      floorDelta * ELEVATOR_FLOOR_COST,
+  }
+}
+
 function nearestWc(
   building: Building,
   startFloorId: string,
   startPoint: Point,
   kind: 'wc_male' | 'wc_female',
 ): WcCandidate | null {
-  const elevator = nearestElevator(building.elevators ?? [], startPoint)
-  const elevPoint = elevator ? elevTarget(elevator) : null
   const candidates: WcCandidate[] = []
 
   for (const floor of building.floors) {
@@ -124,32 +175,32 @@ function nearestWc(
         continue
       }
       const target = roomTarget(room)
-      let score: number
       if (floor.id === startFloorId) {
-        score = dist(startPoint, target)
-      } else if (canUseYardLink(building, startFloorId, floor.id)) {
-        const startFloor = building.floors.find((f) => f.id === startFloorId)
-        const startDoor = startFloor
-          ? nearestYardDoor(startFloor, startPoint)
-          : null
-        const destDoor = nearestYardDoor(floor, target)
-        if (!startDoor || !destDoor) {
-          continue
-        }
-        score =
-          dist(startPoint, yardDoorPoint(startDoor)) +
-          dist(yardDoorPoint(destDoor), target) +
-          40
-      } else if (elevPoint) {
-        score =
-          dist(startPoint, elevPoint) +
-          dist(elevPoint, target) +
-          Math.abs(floor.order - (building.floors.find((f) => f.id === startFloorId)?.order ?? 0)) *
-            80
-      } else {
+        candidates.push({ floor, room, score: dist(startPoint, target) })
         continue
       }
-      candidates.push({ floor, room, score })
+      const yardScore = yardTransferScore(
+        building,
+        startFloorId,
+        startPoint,
+        floor,
+        target,
+      )
+      const elev = elevatorTransferScore(
+        building,
+        startFloorId,
+        startPoint,
+        floor,
+        target,
+      )
+      const scores = [
+        yardScore,
+        elev?.score ?? null,
+      ].filter((score): score is number => score !== null)
+      if (scores.length === 0) {
+        continue
+      }
+      candidates.push({ floor, room, score: Math.min(...scores) })
     }
   }
 
@@ -157,6 +208,57 @@ function nearestWc(
     return null
   }
   return candidates.sort((a, b) => a.score - b.score)[0]
+}
+
+function routeViaYard(
+  startFloor: Floor,
+  startPoint: Point,
+  destFloor: Floor,
+  destRoom: Room,
+  end: Point,
+): NavRoute {
+  return {
+    legs: [
+      {
+        floorId: startFloor.id,
+        floorName: startFloor.name,
+        points: pathToYardDoor(startFloor, startPoint),
+        note: `Exit to yard, then enter floor ${destFloor.name}`,
+      },
+      {
+        floorId: destFloor.id,
+        floorName: destFloor.name,
+        points: pathFromYardDoor(destFloor, end, destRoom),
+      },
+    ],
+    summary: `${startFloor.name} → Yard → ${destFloor.name} · ${destRoom.name}`,
+  }
+}
+
+function routeViaElevator(
+  startFloor: Floor,
+  startPoint: Point,
+  destFloor: Floor,
+  destRoom: Room,
+  end: Point,
+  elevator: Elevator,
+): NavRoute {
+  return {
+    legs: [
+      {
+        floorId: startFloor.id,
+        floorName: startFloor.name,
+        points: pathToElevator(startFloor, startPoint, elevator),
+        note: `Take ${elevator.label} to floor ${destFloor.name}`,
+      },
+      {
+        floorId: destFloor.id,
+        floorName: destFloor.name,
+        points: pathFromElevator(destFloor, elevator, end, destRoom),
+      },
+    ],
+    summary: `${startFloor.name} → ${elevator.label} → ${destFloor.name} · ${destRoom.name}`,
+  }
 }
 
 function routeToRoomOnFloor(
@@ -181,38 +283,48 @@ function routeToRoomOnFloor(
     }
   }
 
-  if (canUseYardLink(building, startFloor.id, destFloor.id)) {
-    return {
-      legs: [
-        {
-          floorId: startFloor.id,
-          floorName: startFloor.name,
-          points: pathToYardDoor(startFloor, startPoint),
-          note: `Exit to yard, then enter floor ${destFloor.name}`,
-        },
-        {
-          floorId: destFloor.id,
-          floorName: destFloor.name,
-          points: pathFromYardDoor(destFloor, end, destRoom),
-        },
-      ],
-      summary: `${startFloor.name} → Yard → ${destFloor.name} · ${destRoom.name}`,
+  const yardScore = yardTransferScore(
+    building,
+    startFloor.id,
+    startPoint,
+    destFloor,
+    end,
+  )
+  const elev = elevatorTransferScore(
+    building,
+    startFloor.id,
+    startPoint,
+    destFloor,
+    end,
+  )
+
+  if (yardScore !== null && elev !== null) {
+    if (elev.score <= yardScore) {
+      return routeViaElevator(
+        startFloor,
+        startPoint,
+        destFloor,
+        destRoom,
+        end,
+        elev.elevator,
+      )
     }
+    return routeViaYard(startFloor, startPoint, destFloor, destRoom, end)
   }
 
-  const elevator = nearestElevator(building.elevators ?? [], startPoint)
-  if (!elevator) {
-    return {
-      legs: [
-        {
-          floorId: startFloor.id,
-          floorName: startFloor.name,
-          points: [startPoint],
-          note: 'No elevator or yard link — enable yard link / place yard doors, or add an elevator.',
-        },
-      ],
-      summary: 'Cannot route between floors',
-    }
+  if (yardScore !== null) {
+    return routeViaYard(startFloor, startPoint, destFloor, destRoom, end)
+  }
+
+  if (elev) {
+    return routeViaElevator(
+      startFloor,
+      startPoint,
+      destFloor,
+      destRoom,
+      end,
+      elev.elevator,
+    )
   }
 
   return {
@@ -220,16 +332,11 @@ function routeToRoomOnFloor(
       {
         floorId: startFloor.id,
         floorName: startFloor.name,
-        points: pathToElevator(startFloor, startPoint, elevator),
-        note: `Take ${elevator.label} to floor ${destFloor.name}`,
-      },
-      {
-        floorId: destFloor.id,
-        floorName: destFloor.name,
-        points: pathFromElevator(destFloor, elevator, end, destRoom),
+        points: [startPoint],
+        note: 'No elevator or yard link — enable yard link / place yard doors, or add an elevator.',
       },
     ],
-    summary: `${startFloor.name} → ${elevator.label} → ${destFloor.name} · ${destRoom.name}`,
+    summary: 'Cannot route between floors',
   }
 }
 

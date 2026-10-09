@@ -4,7 +4,7 @@ import type { BuildingSite } from '../../types'
 import type { Elevator } from '../../types'
 import { clampPointToRect, clampRoomToRect, sitePatchFromDivider } from '../../lib/site'
 import { elevatorSize } from '../../lib/elevators'
-import { roomDefaults } from '../../lib/rooms'
+import { doorAlongFromPoint, roomDefaults } from '../../lib/rooms'
 import { snapBoxMove, snapBoxResize, type SnapGuide } from '../../lib/snap'
 import type { DragState } from './types'
 import { resizeRoomRect, svgPoint } from './canvasUtils'
@@ -79,6 +79,16 @@ export function createPointerMove(ctx: MoveUpContext) {
     const building = ctx.building
     if (drag.kind === 'room-create' || drag.kind === 'wall-create' || drag.kind === 'passage-create') {
       ctx.setDrag({ ...drag, current: clampToBuilding(point, building, 8) })
+      return
+    }
+    if (drag.kind === 'room-door-move') {
+      const room = floor.rooms.find((item) => item.id === drag.id)
+      if (!room?.doorSide) {
+        return
+      }
+      ctx.updateRoom(drag.id, {
+        doorAlong: doorAlongFromPoint(room, point),
+      })
       return
     }
     if (drag.kind === 'room-move' || drag.kind === 'wall-move' || drag.kind === 'passage-move') {

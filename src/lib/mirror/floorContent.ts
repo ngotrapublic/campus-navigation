@@ -26,10 +26,18 @@ export function mirrorFloorContent(
       continue
     }
     const labels = uniqueMirroredRoomLabels(room, floor.name, rooms)
+    const mirroredSide = mirrorDoorSide(room.doorSide, axis)
+    const along = room.doorAlong ?? 0.5
+    const flipAlong =
+      (axis === 'vertical' &&
+        (room.doorSide === 'n' || room.doorSide === 's')) ||
+      (axis === 'horizontal' &&
+        (room.doorSide === 'e' || room.doorSide === 'w'))
     const mirrored = {
       ...room,
       ...mirrorBox(room, axis, cx, cy),
-      doorSide: mirrorDoorSide(room.doorSide, axis),
+      doorSide: mirroredSide,
+      doorAlong: flipAlong ? 1 - along : along,
       id: createId('room'),
       name: labels.name,
       code: labels.code,

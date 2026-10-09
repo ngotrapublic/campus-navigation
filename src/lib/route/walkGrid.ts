@@ -46,46 +46,60 @@ export function insetRect(rect: WalkRect, margin: number): WalkRect | null {
   }
 }
 
-export function walkableRects(floor: Floor): WalkRect[] {
+function roomToWalkRect(room: Room): WalkRect {
+  return {
+    x: room.x,
+    y: room.y,
+    width: room.width,
+    height: room.height,
+  }
+}
+
+export function walkableRects(
+  floor: Floor,
+  passThroughRooms: Room[] = [],
+): WalkRect[] {
   const passages = floor.passages ?? []
   const opens = floor.rooms
     .filter((room) => room.kind === 'open')
-    .map((room) => ({
-      x: room.x,
-      y: room.y,
-      width: room.width,
-      height: room.height,
-    }))
-  return [...passages, ...opens]
+    .map(roomToWalkRect)
+  const passThrough = passThroughRooms
+    .filter((room) => room.kind !== 'open')
+    .map(roomToWalkRect)
+  return [...passages, ...opens, ...passThrough]
 }
 
 export function preferredWalkRects(
   floor: Floor,
   clearance = CLEARANCE,
+  passThroughRooms: Room[] = [],
 ): WalkRect[] {
-  const raw = walkableRects(floor)
-  const inset = raw
+  const base = walkableRects(floor)
+  const inset = base
     .map((rect) => insetRect(rect, clearance))
     .filter((rect): rect is WalkRect => rect !== null)
-  if (inset.length > 0) {
-    return inset
-  }
-  const half = raw
-    .map((rect) => insetRect(rect, Math.max(4, Math.floor(clearance / 2))))
-    .filter((rect): rect is WalkRect => rect !== null)
-  return half.length > 0 ? half : raw
+  const preferredBase =
+    inset.length > 0
+      ? inset
+      : base
+          .map((rect) => insetRect(rect, Math.max(4, Math.floor(clearance / 2))))
+          .filter((rect): rect is WalkRect => rect !== null)
+  const passThrough = passThroughRooms.map(roomToWalkRect)
+  const merged = [...(preferredBase.length > 0 ? preferredBase : base), ...passThrough]
+  return merged.length > 0 ? merged : base
 }
 
-export function solidBlockRects(floor: Floor): WalkRect[] {
+export function solidBlockRects(
+  floor: Floor,
+  passThroughRoomIds: Iterable<string> = [],
+): WalkRect[] {
+  const passThrough = new Set(passThroughRoomIds)
   const walls = floor.walls ?? []
   const rooms = floor.rooms
-    .filter((room) => room.kind !== 'open')
-    .map((room) => ({
-      x: room.x,
-      y: room.y,
-      width: room.width,
-      height: room.height,
-    }))
+    .filter(
+      (room) => room.kind !== 'open' && !passThrough.has(room.id),
+    )
+    .map(roomToWalkRect)
   return [...walls, ...rooms]
 }
 
@@ -156,6 +170,49 @@ export function approachPointForDoor(
     return { x: door.x - clearance, y: door.y }
   }
   return door
+}
+
+export function approachOnAxis(
+  door: Point,
+  side: Room['doorSide'] | null | undefined,
+  walkRects: WalkRect[],
+  fallbackRects: WalkRect[] = [],
+  clearance = CLEARANCE,
+): Point {
+  if (!side) {
+    return (
+      snapToWalkable(walkRects, door) ??
+      snapToWalkable(fallbackRects, door) ??
+      door
+    )
+  }
+  const step = CELL / 2
+  const max = clearance * 4
+  const signs =
+    side === 'n' || side === 'w' ? ([-1, 1] as const) : ([1, -1] as const)
+  const candidates: Point[] = []
+  for (const sign of signs) {
+    for (let dist = clearance; dist <= max + 0.01; dist += step) {
+      const point =
+        side === 'n' || side === 's'
+          ? { x: door.x, y: door.y + sign * dist }
+          : { x: door.x + sign * dist, y: door.y }
+      if (
+        pointInAny(point, walkRects, 0.5) ||
+        pointInAny(point, fallbackRects, 0.5)
+      ) {
+        candidates.push(point)
+        break
+      }
+    }
+  }
+  if (candidates.length === 0) {
+    return approachPointForDoor(door, side, clearance)
+  }
+  const preferred = approachPointForDoor(door, side, clearance)
+  return candidates.sort(
+    (a, b) => dist(a, preferred) - dist(b, preferred),
+  )[0]
 }
 
 function boundsOf(rects: WalkRect[]): WalkRect | null {

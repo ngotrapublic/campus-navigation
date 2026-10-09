@@ -17,7 +17,6 @@ type PropertiesPanelProps = {
 
 export function PropertiesPanel({ store }: PropertiesPanelProps) {
   const {
-    state,
     editorStage,
     selected,
     activeBuilding,
@@ -52,7 +51,6 @@ export function PropertiesPanel({ store }: PropertiesPanelProps) {
     selectedQr,
     activeBuilding,
     activeFloor,
-    state.settings.baseUrl,
   )
 
   if (editorStage === 'site') {

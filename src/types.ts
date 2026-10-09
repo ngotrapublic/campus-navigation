@@ -17,6 +17,7 @@ export type Room = {
   width: number
   height: number
   doorSide: DoorSide | null
+  doorAlong: number
 }
 
 export type Wall = {

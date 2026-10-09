@@ -1,6 +1,6 @@
 {
   "settings": {
-    "baseUrl": "http://192.168.2.7:5173"
+    "baseUrl": ""
   },
   "buildings": [
     {

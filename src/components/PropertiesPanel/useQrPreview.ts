@@ -6,7 +6,6 @@ export function useQrPreview(
   selectedQr: QrMarker | null | undefined,
   activeBuilding: Building | null,
   activeFloor: Floor | null,
-  baseUrl: string,
 ) {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [qrUrl, setQrUrl] = useState<string | null>(null)
@@ -21,7 +20,7 @@ export function useQrPreview(
         return
       }
       const url = buildQrUrl(
-        baseUrl || window.location.origin,
+        window.location.origin,
         activeBuilding.id,
         selectedQr.id,
       )
@@ -36,7 +35,7 @@ export function useQrPreview(
     return () => {
       cancelled = true
     }
-  }, [selectedQr, activeBuilding, baseUrl])
+  }, [selectedQr, activeBuilding])
 
   function printQr() {
     if (!qrDataUrl || !selectedQr || !activeBuilding || !activeFloor) {

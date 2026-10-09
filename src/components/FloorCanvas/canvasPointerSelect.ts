@@ -90,6 +90,11 @@ export function handleSelectDown(
     })
     return
   }
+  if (entity === 'room-door' && entityId) {
+    ctx.setSelected({ type: 'room', id: entityId })
+    ctx.setDrag({ kind: 'room-door-move', id: entityId })
+    return
+  }
   if (entity === 'room' && entityId) {
     beginBoxMove(ctx, point, entityId, 'room', 'room-move', floor.rooms.find((r) => r.id === entityId))
     return

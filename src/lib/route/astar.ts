@@ -1,20 +1,28 @@
 import type { Floor, Point, Room } from '../../types'
 import {
+  orthoInsideRoom,
+  pointInRoom,
+  roomContainingPoint,
+  roomDoorPoint,
+} from '../rooms'
+import {
   CELL,
   CLEARANCE,
   EPSILON,
-  approachPointForDoor,
+  approachOnAxis,
   axisSegmentOnWalk,
   buildWalkGrid,
   fromCell,
   manhattan,
   nearestWalkCell,
+  pointInRect,
   preferredWalkRects,
   samePoint,
   snapToWalkable,
   solidBlockRects,
   walkableRects,
   type WalkGrid,
+  type WalkRect,
 } from './walkGrid'
 
 export function astarOrtho(
@@ -116,7 +124,11 @@ function axisAligned(a: Point, b: Point): boolean {
   return Math.abs(a.x - b.x) < EPSILON || Math.abs(a.y - b.y) < EPSILON
 }
 
-function safeOrthoLink(grid: WalkGrid, a: Point, b: Point): Point[] | null {
+function straightOrLOnWalk(
+  grid: WalkGrid,
+  a: Point,
+  b: Point,
+): Point[] | null {
   if (samePoint(a, b, 1)) {
     return [a]
   }
@@ -137,16 +149,7 @@ function safeOrthoLink(grid: WalkGrid, a: Point, b: Point): Point[] | null {
       return [a, corner, b]
     }
   }
-  const startCell = nearestWalkCell(grid, a)
-  const endCell = nearestWalkCell(grid, b)
-  if (!startCell || !endCell) {
-    return null
-  }
-  const viaGrid = astarOrtho(grid, startCell, endCell)
-  if (!viaGrid || viaGrid.length === 0) {
-    return null
-  }
-  return viaGrid
+  return null
 }
 
 export function simplifyOrthogonal(points: Point[]): Point[] {
@@ -176,33 +179,57 @@ export function simplifyOrthogonal(points: Point[]): Point[] {
   return deduped
 }
 
-function stitchOnGrid(grid: WalkGrid, points: Point[]): Point[] {
+export function ensureOrthogonal(points: Point[]): Point[] {
   if (points.length === 0) {
     return []
   }
   const linked: Point[] = [points[0]]
   for (let i = 1; i < points.length; i += 1) {
-    const segment = safeOrthoLink(grid, linked[linked.length - 1], points[i])
-    if (!segment || segment.length === 0) {
-      const cell = nearestWalkCell(grid, points[i])
-      if (cell) {
-        const via = astarOrtho(
-          grid,
-          nearestWalkCell(grid, linked[linked.length - 1]) ?? cell,
-          cell,
-        )
-        if (via && via.length > 0) {
-          linked.push(...via.slice(1))
-        }
-      }
+    const prev = linked[linked.length - 1]
+    const cur = points[i]
+    if (samePoint(prev, cur, 1)) {
       continue
     }
-    linked.push(...segment.slice(1))
+    if (axisAligned(prev, cur)) {
+      linked.push(cur)
+      continue
+    }
+    const viaH = { x: cur.x, y: prev.y }
+    const viaV = { x: prev.x, y: cur.y }
+    const corner =
+      Math.abs(cur.x - prev.x) >= Math.abs(cur.y - prev.y) ? viaH : viaV
+    linked.push(corner, cur)
   }
   return simplifyOrthogonal(linked)
 }
 
+function pullOrtho(grid: WalkGrid, points: Point[]): Point[] {
+  if (points.length <= 2) {
+    return points
+  }
+  const result: Point[] = [points[0]]
+  let i = 0
+  while (i < points.length - 1) {
+    let best = i + 1
+    for (let j = points.length - 1; j > i + 1; j -= 1) {
+      if (straightOrLOnWalk(grid, points[i], points[j])) {
+        best = j
+        break
+      }
+    }
+    const segment = straightOrLOnWalk(grid, points[i], points[best])
+    if (segment && segment.length > 0) {
+      result.push(...segment.slice(1))
+    } else {
+      result.push(points[best])
+    }
+    i = best
+  }
+  return simplifyOrthogonal(result)
+}
+
 export type PathOnFloorOptions = {
+  startRoom?: Room | null
   endRoom?: Room | null
   endDoor?: Point | null
   startDoor?: Point | null
@@ -216,12 +243,63 @@ function doorApproach(
   preferred: ReturnType<typeof preferredWalkRects>,
   rawWalk: ReturnType<typeof walkableRects>,
 ): Point {
-  const raw = approachPointForDoor(door, side, CLEARANCE)
-  return (
-    snapToWalkable(preferred, raw) ??
-    snapToWalkable(rawWalk, raw) ??
-    door
-  )
+  return approachOnAxis(door, side, preferred, rawWalk, CLEARANCE)
+}
+
+function pathInSharedRect(
+  rects: WalkRect[],
+  from: Point,
+  to: Point,
+  pad = 4,
+): Point[] | null {
+  for (const rect of rects) {
+    if (!pointInRect(from, rect, pad) || !pointInRect(to, rect, pad)) {
+      continue
+    }
+    const viaH = { x: to.x, y: from.y }
+    const viaV = { x: from.x, y: to.y }
+    for (const path of [
+      orthoInsideRoom(from, to),
+      [from, viaV, to],
+      [from, viaH, to],
+    ]) {
+      if (path.every((point) => pointInRect(point, rect, pad))) {
+        return ensureOrthogonal(path)
+      }
+    }
+  }
+  return null
+}
+
+function pinDoorAxis(
+  points: Point[],
+  door: Point,
+  side: Room['doorSide'] | null | undefined,
+  fromStart: boolean,
+): Point[] {
+  if (!side || points.length === 0) {
+    return points
+  }
+  const pinned = points.map((point) => ({ ...point }))
+  const indices = fromStart
+    ? pinned.map((_, index) => index)
+    : pinned.map((_, index) => pinned.length - 1 - index)
+
+  for (const index of indices) {
+    const cur = pinned[index]
+    if (side === 'e' || side === 'w') {
+      if (Math.abs(cur.y - door.y) > CLEARANCE * 1.5) {
+        break
+      }
+      pinned[index] = { x: cur.x, y: door.y }
+    } else {
+      if (Math.abs(cur.x - door.x) > CLEARANCE * 1.5) {
+        break
+      }
+      pinned[index] = { x: door.x, y: cur.y }
+    }
+  }
+  return simplifyOrthogonal(pinned)
 }
 
 function findGridPath(
@@ -229,6 +307,10 @@ function findGridPath(
   routeStart: Point,
   routeEnd: Point,
 ): Point[] | null {
+  const direct = straightOrLOnWalk(grid, routeStart, routeEnd)
+  if (direct) {
+    return simplifyOrthogonal(direct)
+  }
   const startCell = nearestWalkCell(grid, routeStart)
   const endCell = nearestWalkCell(grid, routeEnd)
   if (!startCell || !endCell) {
@@ -238,7 +320,26 @@ function findGridPath(
   if (!cells || cells.length === 0) {
     return null
   }
-  return stitchOnGrid(grid, [routeStart, ...cells, routeEnd])
+  const startOnGrid = fromCell(grid, startCell.col, startCell.row)
+  const endOnGrid = fromCell(grid, endCell.col, endCell.row)
+  const pulled = pullOrtho(grid, [startOnGrid, ...cells, endOnGrid])
+  const head = straightOrLOnWalk(grid, routeStart, pulled[0]) ?? [
+    routeStart,
+    ...orthoInsideRoom(routeStart, pulled[0]).slice(1),
+  ]
+  const tail = straightOrLOnWalk(
+    grid,
+    pulled[pulled.length - 1],
+    routeEnd,
+  ) ?? [
+    ...orthoInsideRoom(pulled[pulled.length - 1], routeEnd).slice(0, -1),
+    routeEnd,
+  ]
+  return ensureOrthogonal([
+    ...head.slice(0, -1),
+    ...pulled,
+    ...tail.slice(1),
+  ])
 }
 
 export function pathOnFloor(
@@ -247,45 +348,142 @@ export function pathOnFloor(
   end: Point,
   options?: PathOnFloorOptions,
 ): Point[] {
-  const preferred = preferredWalkRects(floor)
-  const solids = solidBlockRects(floor)
-  const rawWalk = walkableRects(floor)
+  const containingStart =
+    options?.startRoom ?? roomContainingPoint(floor.rooms, start)
+  const endRoom = options?.endRoom ?? null
 
-  const startDoor = options?.startDoor ?? null
+  if (
+    containingStart &&
+    endRoom &&
+    containingStart.id === endRoom.id &&
+    pointInRoom(start, containingStart)
+  ) {
+    const door =
+      options?.endDoor ??
+      roomDoorPoint(endRoom) ??
+      end
+    return ensureOrthogonal(orthoInsideRoom(start, door))
+  }
+
   const endDoor = options?.endDoor ?? null
-  const endSide = options?.endDoorSide ?? options?.endRoom?.doorSide ?? null
-  const startSide = options?.startDoorSide ?? null
+  const endSide = options?.endDoorSide ?? endRoom?.doorSide ?? null
+  const endAnchor = endDoor ?? end
+
+  const passThrough: Room[] = []
+  if (containingStart && pointInRoom(start, containingStart)) {
+    passThrough.push(containingStart)
+  }
+  if (endRoom && !passThrough.some((room) => room.id === endRoom.id)) {
+    passThrough.push(endRoom)
+  }
+  for (const room of floor.rooms) {
+    if (passThrough.some((item) => item.id === room.id)) {
+      continue
+    }
+    if (pointInRoom(start, room, 2) || pointInRoom(endAnchor, room, 2)) {
+      passThrough.push(room)
+    }
+  }
+  const passThroughIds = passThrough.map((room) => room.id)
+
+  const preferred = preferredWalkRects(floor, CLEARANCE, passThrough)
+  const solids = solidBlockRects(floor, passThroughIds)
+  const rawWalk = walkableRects(floor, passThrough)
+
+  let startDoor = options?.startDoor ?? null
+  let startSide = options?.startDoorSide ?? null
+  const exitFromRoom =
+    containingStart &&
+    pointInRoom(start, containingStart) &&
+    Boolean(containingStart.doorSide) &&
+    containingStart.kind !== 'open'
+
+  if (exitFromRoom && containingStart) {
+    startDoor = roomDoorPoint(containingStart) ?? startDoor
+    startSide = containingStart.doorSide
+  }
 
   const routeStart = startDoor
     ? doorApproach(startDoor, startSide, preferred, rawWalk)
-    : (snapToWalkable(preferred, start) ?? snapToWalkable(rawWalk, start))
+    : (snapToWalkable(rawWalk, start) ??
+      snapToWalkable(preferred, start) ??
+      start)
 
   const routeEnd = endDoor
     ? doorApproach(endDoor, endSide, preferred, rawWalk)
-    : (snapToWalkable(preferred, end) ?? snapToWalkable(rawWalk, end))
+    : (snapToWalkable(rawWalk, end) ?? snapToWalkable(preferred, end) ?? end)
 
   if (!routeStart || !routeEnd) {
     return [start]
   }
 
+  const walkOrigin = startDoor ? routeStart : start
+  const sharedDirect =
+    pathInSharedRect(rawWalk, walkOrigin, endDoor ?? routeEnd) ??
+    pathInSharedRect(rawWalk, walkOrigin, routeEnd)
+
+  function finalize(path: Point[]): Point[] {
+    let points = [...path]
+    if (startDoor) {
+      if (!samePoint(points[0], routeStart, 1)) {
+        points = [routeStart, ...points]
+      }
+      if (!samePoint(points[0], startDoor, 1)) {
+        points = [startDoor, ...points]
+      } else if (
+        points.length >= 2 &&
+        !samePoint(points[1], routeStart, 1) &&
+        axisAligned(startDoor, routeStart)
+      ) {
+        points = [startDoor, routeStart, ...points.slice(1)]
+      }
+      points = pinDoorAxis(points, startDoor, startSide, true)
+    }
+    if (endDoor) {
+      const last = points[points.length - 1]
+      if (!samePoint(last, endDoor, 1)) {
+        if (!samePoint(last, routeEnd, 1) && axisAligned(routeEnd, endDoor)) {
+          points = [...points, routeEnd]
+        }
+        const tip = points[points.length - 1]
+        if (axisAligned(tip, endDoor)) {
+          points = [...points, endDoor]
+        } else {
+          points = [...points, ...orthoInsideRoom(tip, endDoor).slice(1)]
+        }
+      }
+      points = pinDoorAxis(points, endDoor, endSide, false)
+    }
+    if (
+      exitFromRoom &&
+      containingStart &&
+      startDoor &&
+      pointInRoom(start, containingStart) &&
+      !samePoint(start, points[0], 1)
+    ) {
+      points = [...orthoInsideRoom(start, points[0]).slice(0, -1), ...points]
+    } else if (!startDoor && !samePoint(start, points[0], 1)) {
+      points = [...orthoInsideRoom(start, points[0]).slice(0, -1), ...points]
+    }
+    return ensureOrthogonal(points)
+  }
+
+  if (sharedDirect) {
+    return finalize(sharedDirect)
+  }
+
   const preferredGrid = buildWalkGrid(preferred, solids)
   const fullGrid = buildWalkGrid(rawWalk, solids)
   const walked =
-    (preferredGrid ? findGridPath(preferredGrid, routeStart, routeEnd) : null) ??
-    (fullGrid ? findGridPath(fullGrid, routeStart, routeEnd) : null)
+    (fullGrid ? findGridPath(fullGrid, walkOrigin, routeEnd) : null) ??
+    (preferredGrid ? findGridPath(preferredGrid, walkOrigin, routeEnd) : null)
 
   if (!walked || walked.length === 0) {
-    return [routeStart]
+    if (exitFromRoom && startDoor) {
+      return ensureOrthogonal(orthoInsideRoom(start, startDoor))
+    }
+    return finalize(orthoInsideRoom(walkOrigin, routeEnd))
   }
 
-  const points: Point[] = [...walked]
-
-  if (startDoor && axisAligned(startDoor, routeStart)) {
-    points.unshift(startDoor)
-  }
-  if (endDoor && axisAligned(routeEnd, endDoor)) {
-    points.push(endDoor)
-  }
-
-  return simplifyOrthogonal(points)
+  return finalize(walked)
 }

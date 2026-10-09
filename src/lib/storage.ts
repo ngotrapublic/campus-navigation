@@ -137,8 +137,9 @@ function migrateState(parsed: AppState): AppState {
     activeFloorId: parsed.activeFloorId ?? null,
     settings: {
       baseUrl:
-        parsed.settings?.baseUrl ||
-        (typeof window !== 'undefined' ? window.location.origin : ''),
+        typeof window !== 'undefined'
+          ? window.location.origin
+          : parsed.settings?.baseUrl || '',
     },
   }
 }

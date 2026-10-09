@@ -53,18 +53,31 @@ export function RoomLayer({ rooms, selected }: RoomLayerProps) {
           </text>
         ) : null}
         {door ? (
-          <g pointerEvents="none">
+          <g
+            style={{ cursor: 'grab' }}
+            data-entity="room-door"
+            data-id={room.id}
+          >
             <rect
-              x={door.x - 7}
-              y={door.y - 7}
-              width="14"
-              height="14"
+              x={door.x - 9}
+              y={door.y - 9}
+              width="18"
+              height="18"
               rx="2"
               fill="#fff"
               stroke="#c45c26"
               strokeWidth="2"
+              data-entity="room-door"
+              data-id={room.id}
             />
-            <circle cx={door.x} cy={door.y} r="3" fill="#c45c26" />
+            <circle
+              cx={door.x}
+              cy={door.y}
+              r="3.5"
+              fill="#c45c26"
+              data-entity="room-door"
+              data-id={room.id}
+            />
           </g>
         ) : null}
         {isSelected ? (

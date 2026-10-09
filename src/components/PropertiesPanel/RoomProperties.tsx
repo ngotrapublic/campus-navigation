@@ -74,13 +74,14 @@ export function RoomProperties({
       </label>
       {selectedRoom.kind !== 'open' ? (
         <label>
-          Door
+          Door side
           <select
             className="text-input"
             value={selectedRoom.doorSide ?? ''}
             onChange={(event) =>
               updateRoom(selectedRoom.id, {
                 doorSide: (event.target.value || null) as DoorSide | null,
+                doorAlong: selectedRoom.doorAlong ?? 0.5,
               })
             }
           >
@@ -93,9 +94,28 @@ export function RoomProperties({
         </label>
       ) : null}
       {selectedRoom.kind !== 'open' && selectedRoom.doorSide ? (
-        <p className="hint">
-          Door marker on map is the routing target for this room.
-        </p>
+        <>
+          <label>
+            Door position on side
+            <input
+              className="text-input"
+              type="range"
+              min={0}
+              max={100}
+              step={1}
+              value={Math.round((selectedRoom.doorAlong ?? 0.5) * 100)}
+              onChange={(event) =>
+                updateRoom(selectedRoom.id, {
+                  doorAlong: Number(event.target.value) / 100,
+                })
+              }
+            />
+          </label>
+          <p className="hint">
+            Drag the door marker on the map, or use the slider, to set the exact
+            spot on that wall.
+          </p>
+        </>
       ) : null}
       <div className="site-grid">
         <label>
