@@ -55,6 +55,9 @@ export function handleSelectDown(
   if (entity === 'wall-delete' && entityId) return void ctx.removeWall(entityId)
   if (entity === 'passage-delete' && entityId) return void ctx.removePassage(entityId)
   if (entity === 'elevator-delete' && entityId) return void ctx.removeElevator(entityId)
+  if (entity === 'yard-door-delete' && entityId) {
+    return void ctx.removeYardDoor(entityId)
+  }
   const h = handle as ResizeHandle | undefined
   if (entity === 'room-handle' && entityId && h) {
     beginBoxResize(ctx, point, entityId, h, 'room', 'room-resize', floor.rooms.find((r) => r.id === entityId))
@@ -118,6 +121,17 @@ export function handleSelectDown(
       kind: 'exit-move',
       id: entityId,
       offset: { x: point.x - exit.x, y: point.y - exit.y },
+    })
+    return
+  }
+  if (entity === 'yard-door' && entityId) {
+    const door = (floor.yardDoors ?? []).find((item) => item.id === entityId)
+    if (!door) return
+    ctx.setSelected({ type: 'yard-door', id: entityId })
+    ctx.setDrag({
+      kind: 'yard-door-move',
+      id: entityId,
+      offset: { x: point.x - door.x, y: point.y - door.y },
     })
     return
   }

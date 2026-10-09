@@ -22,6 +22,14 @@ export function FloorSummary({ activeFloor, activeBuilding }: FloorSummaryProps)
           Emergency exits: {activeBuilding?.emergencyExits?.length ?? 0}{' '}
           (shared)
         </li>
+        <li>
+          Yard link:{' '}
+          {activeBuilding?.yardLinkEnabled
+            ? (activeFloor.yardDoors?.length ?? 0) > 0
+              ? `on · ${activeFloor.yardDoors.length} door(s)`
+              : 'on · door missing'
+            : 'off'}
+        </li>
       </ul>
     </section>
   )

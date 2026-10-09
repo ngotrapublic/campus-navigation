@@ -44,6 +44,7 @@ export type DragState =
       origin: { x: number; y: number; width: number; height: number }
     }
   | { kind: 'exit-move'; id: string; offset: Point }
+  | { kind: 'yard-door-move'; id: string; offset: Point }
   | { kind: 'qr-move'; id: string; offset: Point }
   | { kind: 'corridor-point'; index: number }
   | { kind: 'divider' }

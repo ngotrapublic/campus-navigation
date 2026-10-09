@@ -5,6 +5,7 @@ import { WallProperties } from './WallProperties'
 import { PassageProperties } from './PassageProperties'
 import { ElevatorProperties } from './ElevatorProperties'
 import { ExitProperties } from './ExitProperties'
+import { YardDoorProperties } from './YardDoorProperties'
 import { QrProperties } from './QrProperties'
 import { FloorSummary } from './FloorSummary'
 import { useSelectedEntities } from './useSelectedEntities'
@@ -30,6 +31,8 @@ export function PropertiesPanel({ store }: PropertiesPanelProps) {
     updateElevator,
     removeElevator,
     updateEmergencyExit,
+    updateYardDoor,
+    removeYardDoor,
     updateQrMarker,
   } = store
 
@@ -40,6 +43,7 @@ export function PropertiesPanel({ store }: PropertiesPanelProps) {
     selectedElevator,
     selectedExit,
     selectedQr,
+    selectedYardDoor,
   } = useSelectedEntities(store)
 
   const metersToPx = activeBuilding ? siteScale(activeBuilding.site) : 1
@@ -69,8 +73,8 @@ export function PropertiesPanel({ store }: PropertiesPanelProps) {
 
       {!selected ? (
         <p className="muted">
-          Select a room, wall, passage, elevator, exit, QR point, or corridor
-          handle to edit.
+          Select a room, wall, passage, elevator, exit, yard door, QR point, or
+          corridor handle to edit.
         </p>
       ) : null}
 
@@ -124,6 +128,14 @@ export function PropertiesPanel({ store }: PropertiesPanelProps) {
         <ExitProperties
           selectedExit={selectedExit}
           updateEmergencyExit={updateEmergencyExit}
+        />
+      ) : null}
+
+      {selectedYardDoor ? (
+        <YardDoorProperties
+          yardDoor={selectedYardDoor}
+          updateYardDoor={updateYardDoor}
+          removeYardDoor={removeYardDoor}
         />
       ) : null}
 

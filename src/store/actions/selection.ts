@@ -53,6 +53,19 @@ export function createSelectionActions(deps: ActionDeps) {
       return
     }
 
+    if (selected.type === 'yard-door') {
+      setState((prev) =>
+        updateActiveFloor(prev, (floor) => ({
+          ...floor,
+          yardDoors: (floor.yardDoors ?? []).filter(
+            (door) => door.id !== selected.id,
+          ),
+        })),
+      )
+      setSelected(null)
+      return
+    }
+
     if (selected.type === 'corridor-point') {
       setState((prev) =>
         updateActiveFloor(prev, (floor) => ({

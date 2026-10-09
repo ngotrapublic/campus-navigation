@@ -190,3 +190,39 @@
   width: 100%;
   margin-top: 14px;
 }
+
+.checkbox-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 14px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.checkbox-row input {
+  margin-top: 3px;
+}
+
+.yard-door-badge {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.yard-door-badge.ok {
+  color: #145c34;
+  background: #e7f6ec;
+  border-color: #9dceb0;
+}
+
+.yard-door-badge.missing {
+  color: #9b2c2c;
+  background: #fdecec;
+  border-color: #efb4b4;
+}

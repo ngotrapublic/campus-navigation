@@ -81,7 +81,7 @@ export function GoPage() {
       {route ? (
         <p className="go-summary">{route.summary}</p>
       ) : (
-        <p className="go-hint">Pick a room or elevator to see the path.</p>
+        <p className="go-hint">Pick a room, nearest WC, or elevator to see the path.</p>
       )}
 
       {route && route.legs.length > 1 ? (

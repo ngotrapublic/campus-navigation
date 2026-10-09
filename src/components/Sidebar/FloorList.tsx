@@ -4,6 +4,7 @@ import type { AppState, Floor } from '../../types'
 type FloorListProps = {
   state: AppState
   floors: Floor[]
+  yardLinkEnabled: boolean
   addFloor: (name: string) => void
   selectFloor: (floorId: string) => void
   renameFloor: (floorId: string, name: string) => void
@@ -15,6 +16,7 @@ type FloorListProps = {
 export function FloorList({
   state,
   floors,
+  yardLinkEnabled,
   addFloor,
   selectFloor,
   renameFloor,
@@ -39,6 +41,16 @@ export function FloorList({
         <h2>Floors</h2>
       </div>
       <p className="hint">Floors apply only inside the building footprint.</p>
+      {yardLinkEnabled ? (
+        <p className="hint">
+          Yard link on: place a Yard door on the two lowest floors (
+          {floors
+            .slice(0, 2)
+            .map((floor) => floor.name)
+            .join(' + ') || 'need 2 floors'}
+          ).
+        </p>
+      ) : null}
 
       <div className="floor-add">
         <input
@@ -65,6 +77,7 @@ export function FloorList({
       <ul className="floor-list">
         {floors.map((floor, index) => {
           const isActive = floor.id === state.activeFloorId
+          const needsYardDoor = yardLinkEnabled && index < 2
           return (
             <li
               key={floor.id}
@@ -85,6 +98,24 @@ export function FloorList({
                 onChange={(event) => renameFloor(floor.id, event.target.value)}
                 aria-label={`Floor name ${floor.name}`}
               />
+              {needsYardDoor ? (
+                <span
+                  className={
+                    (floor.yardDoors?.length ?? 0) > 0
+                      ? 'yard-door-badge ok'
+                      : 'yard-door-badge missing'
+                  }
+                  title={
+                    (floor.yardDoors?.length ?? 0) > 0
+                      ? `${floor.yardDoors.length} yard door(s)`
+                      : 'At least one yard door required'
+                  }
+                >
+                  {(floor.yardDoors?.length ?? 0) > 0
+                    ? `Yard ×${floor.yardDoors.length}`
+                    : 'Yard ?'}
+                </span>
+              ) : null}
               <div className="floor-actions">
                 <button
                   type="button"

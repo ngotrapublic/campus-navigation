@@ -7,8 +7,9 @@ import { normalizeRoom } from './rooms'
 import { normalizeSite } from './site'
 import { normalizePassage } from './passages'
 import { normalizeWall } from './walls'
+import { normalizeYardDoors } from './yardLink'
 
-const STORAGE_KEY = 'campus-navigation-v10'
+const STORAGE_KEY = 'campus-navigation-v11'
 
 export function createEmptyFloor(name: string, order: number): Floor {
   return {
@@ -20,6 +21,7 @@ export function createEmptyFloor(name: string, order: number): Floor {
     walls: [],
     passages: [],
     qrMarkers: [],
+    yardDoors: [],
   }
 }
 
@@ -29,6 +31,7 @@ export function createBuilding(name: string, location: string): Building {
     name,
     location,
     site: { ...DEFAULT_SITE },
+    yardLinkEnabled: false,
     elevators: [],
     emergencyExits: [],
     floors: [],
@@ -49,12 +52,14 @@ function migrateFloor(raw: LegacyFloor): Floor {
       ? raw.passages.map(normalizePassage)
       : [],
     qrMarkers: Array.isArray(raw.qrMarkers) ? raw.qrMarkers : [],
+    yardDoors: normalizeYardDoors(raw),
   }
 }
 
 type LegacyBuilding = Building & {
   elevators?: Elevator[]
   emergencyExits?: Building['emergencyExits']
+  yardLinkEnabled?: boolean
   floors?: LegacyFloor[]
 }
 
@@ -91,6 +96,7 @@ function migrateBuilding(raw: LegacyBuilding): Building {
     name: raw.name,
     location: raw.location,
     site: normalizeSite(raw.site),
+    yardLinkEnabled: Boolean(raw.yardLinkEnabled),
     elevators: collectElevators(raw),
     emergencyExits: Array.isArray(raw.emergencyExits) ? raw.emergencyExits : [],
     floors: Array.isArray(raw.floors) ? raw.floors.map(migrateFloor) : [],
@@ -98,12 +104,15 @@ function migrateBuilding(raw: LegacyBuilding): Building {
 }
 
 export function createDefaultState(): AppState {
-  return migrateState(seedData as AppState)
+  return migrateState(seedData as unknown as AppState)
 }
 
 export function loadState(): AppState {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw =
+      localStorage.getItem(STORAGE_KEY) ??
+      localStorage.getItem('campus-navigation-v10') ??
+      localStorage.getItem('campus-navigation-v9')
     if (!raw) {
       return createDefaultState()
     }

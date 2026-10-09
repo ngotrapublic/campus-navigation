@@ -27,6 +27,7 @@ export type MoveUpContext = {
   updatePassage: CampusStore['updatePassage']
   updateElevator: CampusStore['updateElevator']
   updateEmergencyExit: CampusStore['updateEmergencyExit']
+  updateYardDoor: CampusStore['updateYardDoor']
   updateQrMarker: CampusStore['updateQrMarker']
   moveCorridorPoint: CampusStore['moveCorridorPoint']
   addRoom: CampusStore['addRoom']
@@ -142,6 +143,17 @@ export function createPointerMove(ctx: MoveUpContext) {
       ctx.updateEmergencyExit(
         drag.id,
         clampToBuilding({ x: point.x - drag.offset.x, y: point.y - drag.offset.y }, building, 24),
+      )
+      return
+    }
+    if (drag.kind === 'yard-door-move') {
+      ctx.updateYardDoor(
+        drag.id,
+        clampToBuilding(
+          { x: point.x - drag.offset.x, y: point.y - drag.offset.y },
+          building,
+          24,
+        ),
       )
       return
     }

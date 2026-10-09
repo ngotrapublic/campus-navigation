@@ -1,5 +1,6 @@
 import type { Floor, Rect } from '../../types'
 import { createId } from '../id'
+import { uniqueMirroredRoomLabels } from '../rooms'
 import {
   buildingCenter,
   isOnSourceSide,
@@ -24,11 +25,14 @@ export function mirrorFloorContent(
     if (!isOnSourceSide(centerX, centerY, axis, cx, cy)) {
       continue
     }
+    const labels = uniqueMirroredRoomLabels(room, floor.name, rooms)
     const mirrored = {
       ...room,
       ...mirrorBox(room, axis, cx, cy),
       doorSide: mirrorDoorSide(room.doorSide, axis),
       id: createId('room'),
+      name: labels.name,
+      code: labels.code,
     }
     const exists = rooms.some((item) => nearBox(item, mirrored))
     if (!exists) {

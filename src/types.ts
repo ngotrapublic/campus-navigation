@@ -60,6 +60,14 @@ export type QrMarker = {
   y: number
 }
 
+export type YardDoor = {
+  id: string
+  x: number
+  y: number
+  doorSide: DoorSide | null
+  label: string
+}
+
 export type Floor = {
   id: string
   name: string
@@ -69,6 +77,7 @@ export type Floor = {
   walls: Wall[]
   passages: Passage[]
   qrMarkers: QrMarker[]
+  yardDoors: YardDoor[]
 }
 
 export type BuildingSite = {
@@ -85,6 +94,7 @@ export type Building = {
   name: string
   location: string
   site: BuildingSite
+  yardLinkEnabled: boolean
   elevators: Elevator[]
   emergencyExits: EmergencyExit[]
   floors: Floor[]
@@ -115,6 +125,7 @@ export type EditorTool =
   | 'passage'
   | 'elevator'
   | 'exit'
+  | 'yard_door'
   | 'qr'
 
 export type SelectedEntity =
@@ -123,6 +134,7 @@ export type SelectedEntity =
   | { type: 'passage'; id: string }
   | { type: 'elevator'; id: string }
   | { type: 'exit'; id: string }
+  | { type: 'yard-door'; id: string }
   | { type: 'qr'; id: string }
   | { type: 'corridor-point'; index: number }
   | null

@@ -58,10 +58,35 @@ export function roomDefaults(
   }
   return {
     kind,
-    name: preset.name,
-    code: `${preset.codePrefix}-${floorName}`,
+    name: `${preset.name} ${index}`,
+    code: `${preset.codePrefix}-${floorName}-${String(index).padStart(2, '0')}`,
     doorSide: null,
   }
+}
+
+export function nextRoomIndex(rooms: Room[], kind: RoomKind): number {
+  const count = rooms.filter((room) => (room.kind ?? 'room') === kind).length
+  return count + 1
+}
+
+export function uniqueMirroredRoomLabels(
+  room: Room,
+  floorName: string,
+  existing: Room[],
+): { name: string; code: string } {
+  let index = nextRoomIndex(existing, room.kind ?? 'room')
+  let labels = roomDefaults(room.kind ?? 'room', floorName, index)
+  while (
+    existing.some(
+      (item) =>
+        item.name === labels.name ||
+        (labels.code !== '' && item.code === labels.code),
+    )
+  ) {
+    index += 1
+    labels = roomDefaults(room.kind ?? 'room', floorName, index)
+  }
+  return { name: labels.name, code: labels.code }
 }
 
 export function roomFill(kind: RoomKind, selected: boolean): string {

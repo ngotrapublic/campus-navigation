@@ -24,6 +24,7 @@ export function Sidebar({ store }: SidebarProps) {
     addBuilding,
     renameBuilding,
     updateSite,
+    setYardLinkEnabled,
     addFloor,
     renameFloor,
     moveFloor,
@@ -100,6 +101,7 @@ export function Sidebar({ store }: SidebarProps) {
           activeBuilding={activeBuilding}
           areas={areas}
           updateSite={updateSite}
+          setYardLinkEnabled={setYardLinkEnabled}
           enterInterior={enterInterior}
         />
       ) : null}
@@ -108,6 +110,7 @@ export function Sidebar({ store }: SidebarProps) {
         <FloorList
           state={state}
           floors={floors}
+          yardLinkEnabled={Boolean(activeBuilding.yardLinkEnabled)}
           addFloor={addFloor}
           selectFloor={selectFloor}
           renameFloor={renameFloor}

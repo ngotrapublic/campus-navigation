@@ -37,6 +37,9 @@ export function useCanvasPointer(args: UseCanvasPointerArgs) {
     addEmergencyExit,
     addCorridorPoint,
     addQrMarker,
+    addYardDoor,
+    removeYardDoor,
+    updateYardDoor,
     updateSite,
     updateRoom,
     updateWall,
@@ -48,7 +51,17 @@ export function useCanvasPointer(args: UseCanvasPointerArgs) {
     addRoom,
     addWall,
     addPassage,
+    activeBuilding,
   } = store
+
+  const yardLinkAllowedOnFloor = Boolean(
+    activeBuilding?.yardLinkEnabled &&
+      floor &&
+      [...(activeBuilding.floors ?? [])]
+        .sort((a, b) => a.order - b.order)
+        .slice(0, 2)
+        .some((item) => item.id === floor.id),
+  )
 
   const [drag, setDrag] = useState<DragState>(null)
   const [snapGuides, setSnapGuides] = useState<SnapGuide[]>([])
@@ -90,6 +103,9 @@ export function useCanvasPointer(args: UseCanvasPointerArgs) {
       addEmergencyExit,
       addCorridorPoint,
       addQrMarker,
+      addYardDoor,
+      removeYardDoor,
+      yardLinkAllowedOnFloor,
       updateSite,
     }),
     [
@@ -111,6 +127,9 @@ export function useCanvasPointer(args: UseCanvasPointerArgs) {
       addEmergencyExit,
       addCorridorPoint,
       addQrMarker,
+      addYardDoor,
+      removeYardDoor,
+      yardLinkAllowedOnFloor,
       updateSite,
     ],
   )
@@ -133,6 +152,7 @@ export function useCanvasPointer(args: UseCanvasPointerArgs) {
       updatePassage,
       updateElevator,
       updateEmergencyExit,
+      updateYardDoor,
       updateQrMarker,
       moveCorridorPoint,
       addRoom,
@@ -154,6 +174,7 @@ export function useCanvasPointer(args: UseCanvasPointerArgs) {
       updatePassage,
       updateElevator,
       updateEmergencyExit,
+      updateYardDoor,
       updateQrMarker,
       moveCorridorPoint,
       addRoom,

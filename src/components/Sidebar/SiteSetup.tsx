@@ -5,6 +5,7 @@ type SiteSetupProps = {
   activeBuilding: Building
   areas: ReturnType<typeof siteAreas> | null
   updateSite: (patch: Partial<BuildingSite>) => void
+  setYardLinkEnabled: (enabled: boolean) => void
   enterInterior: () => void
 }
 
@@ -12,6 +13,7 @@ export function SiteSetup({
   activeBuilding,
   areas,
   updateSite,
+  setYardLinkEnabled,
   enterInterior,
 }: SiteSetupProps) {
   return (
@@ -139,6 +141,23 @@ export function SiteSetup({
             {formatArea(areas.totalM2)}
           </li>
         </ul>
+      ) : null}
+
+      <label className="checkbox-row">
+        <input
+          type="checkbox"
+          checked={Boolean(activeBuilding.yardLinkEnabled)}
+          onChange={(event) => setYardLinkEnabled(event.target.checked)}
+        />
+        <span>
+          Yard links the two lowest floors (exit to yard, re-enter above)
+        </span>
+      </label>
+      {activeBuilding.yardLinkEnabled ? (
+        <p className="hint">
+          After enabling, place one or more <strong>Yard doors</strong> on each
+          of the two lowest floors. Routing uses the nearest door.
+        </p>
       ) : null}
 
       <button type="button" className="primary stage-cta" onClick={enterInterior}>

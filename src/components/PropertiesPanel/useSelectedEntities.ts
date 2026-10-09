@@ -27,6 +27,11 @@ export function useSelectedEntities(store: CampusStore) {
     selected?.type === 'qr'
       ? activeFloor?.qrMarkers.find((marker) => marker.id === selected.id)
       : null
+  const selectedYardDoor =
+    selected?.type === 'yard-door'
+      ? (activeFloor?.yardDoors ?? []).find((door) => door.id === selected.id) ??
+        null
+      : null
 
   return {
     selectedRoom,
@@ -35,5 +40,6 @@ export function useSelectedEntities(store: CampusStore) {
     selectedElevator,
     selectedExit,
     selectedQr,
+    selectedYardDoor,
   }
 }

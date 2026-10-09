@@ -15,6 +15,7 @@ import { createWallActions } from './actions/walls'
 import { createPassageActions } from './actions/passages'
 import { createElevatorActions } from './actions/elevators'
 import { createExitActions } from './actions/exits'
+import { createYardDoorActions } from './actions/yardDoor'
 import { createQrActions } from './actions/qr'
 import { createSelectionActions } from './actions/selection'
 import { createSymmetryActions } from './actions/symmetry'
@@ -54,6 +55,7 @@ export function useCampusStore() {
       site: normalizeSite(building.site),
       elevators: building.elevators ?? [],
       emergencyExits: building.emergencyExits ?? [],
+      yardLinkEnabled: Boolean(building.yardLinkEnabled),
     }
   }, [state.buildings, state.activeBuildingId])
 
@@ -88,6 +90,7 @@ export function useCampusStore() {
   const passages = createPassageActions(deps)
   const elevators = createElevatorActions(deps)
   const exits = createExitActions(deps)
+  const yardDoor = createYardDoorActions(deps)
   const qr = createQrActions(deps)
   const selection = createSelectionActions(deps)
   const symmetry = createSymmetryActions(deps)
@@ -140,6 +143,10 @@ export function useCampusStore() {
     removeElevator: elevators.removeElevator,
     addEmergencyExit: exits.addEmergencyExit,
     updateEmergencyExit: exits.updateEmergencyExit,
+    setYardLinkEnabled: yardDoor.setYardLinkEnabled,
+    addYardDoor: yardDoor.addYardDoor,
+    updateYardDoor: yardDoor.updateYardDoor,
+    removeYardDoor: yardDoor.removeYardDoor,
     addQrMarker: qr.addQrMarker,
     updateQrMarker: qr.updateQrMarker,
     deleteSelected: selection.deleteSelected,

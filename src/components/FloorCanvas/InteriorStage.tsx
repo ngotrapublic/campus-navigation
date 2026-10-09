@@ -13,6 +13,7 @@ import { WallLayer } from './layers/WallLayer'
 import { RoomLayer } from './layers/RoomLayer'
 import { ElevatorLayer } from './layers/ElevatorLayer'
 import { ExitLayer } from './layers/ExitLayer'
+import { YardDoorLayer } from './layers/YardDoorLayer'
 import { QrLayer } from './layers/QrLayer'
 import { SnapGuides } from './layers/SnapGuides'
 import { MidlineLayer } from './layers/MidlineLayer'
@@ -122,6 +123,9 @@ export function InteriorStage(props: InteriorStageProps) {
       <SnapGuides guides={snapGuides} building={building} />
       <ElevatorLayer elevators={elevators} selected={selected} />
       <ExitLayer emergencyExits={emergencyExits} selected={selected} />
+      {floor ? (
+        <YardDoorLayer yardDoors={floor.yardDoors ?? []} selected={selected} />
+      ) : null}
       {floor ? (
         <QrLayer qrMarkers={floor.qrMarkers} selected={selected} />
       ) : null}

@@ -7,6 +7,7 @@
       "id": "bldg_7602b601",
       "name": "485LQD",
       "location": "Campus A",
+      "yardLinkEnabled": false,
       "site": {
         "splitAxis": "horizontal",
         "yardFirst": true,

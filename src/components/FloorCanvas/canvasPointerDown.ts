@@ -28,6 +28,9 @@ export type DownContext = {
   addEmergencyExit: CampusStore['addEmergencyExit']
   addCorridorPoint: CampusStore['addCorridorPoint']
   addQrMarker: CampusStore['addQrMarker']
+  addYardDoor: CampusStore['addYardDoor']
+  removeYardDoor: CampusStore['removeYardDoor']
+  yardLinkAllowedOnFloor: boolean
   updateSite: CampusStore['updateSite']
 }
 
@@ -72,6 +75,19 @@ export function createPointerDown(ctx: DownContext) {
     if (ctx.tool === 'exit') {
       const index = ctx.emergencyExits.length + 1
       ctx.addEmergencyExit({ x: clamped.x, y: clamped.y, label: `Exit ${index}` })
+      return
+    }
+    if (ctx.tool === 'yard_door') {
+      if (!ctx.yardLinkAllowedOnFloor || !ctx.floor) {
+        return
+      }
+      const index = (ctx.floor.yardDoors ?? []).length + 1
+      ctx.addYardDoor({
+        x: clamped.x,
+        y: clamped.y,
+        doorSide: null,
+        label: `Yard door ${index}`,
+      })
       return
     }
     if (!ctx.floor) return

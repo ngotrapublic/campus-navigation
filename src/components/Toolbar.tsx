@@ -12,6 +12,7 @@ const TOOLS: { id: EditorTool; label: string; hint: string }[] = [
   { id: 'wc_female', label: 'WC Female', hint: 'Drag to draw female WC' },
   { id: 'elevator', label: 'Elevator', hint: 'Shared for whole building' },
   { id: 'exit', label: 'Exit', hint: 'Emergency exit · shared building' },
+  { id: 'yard_door', label: 'Yard door', hint: 'Door to yard · two lowest floors' },
   { id: 'qr', label: 'QR point', hint: 'Click to place' },
 ]
 
@@ -31,6 +32,7 @@ export function Toolbar({ store }: ToolbarProps) {
     deleteSelected,
     selected,
     activeFloor,
+    activeBuilding,
     enterInterior,
     backToSite,
     symmetryEnabled,
@@ -64,17 +66,32 @@ export function Toolbar({ store }: ToolbarProps) {
         <button type="button" className="tool" onClick={backToSite}>
           ← Site
         </button>
-        {TOOLS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={tool === item.id ? 'tool active' : 'tool'}
-            title={item.hint}
-            onClick={() => setTool(item.id)}
-          >
-            {item.label}
-          </button>
-        ))}
+        {TOOLS.map((item) => {
+          const floors = [...(activeBuilding?.floors ?? [])].sort(
+            (a, b) => a.order - b.order,
+          )
+          const yardDoorOk =
+            item.id !== 'yard_door' ||
+            (Boolean(activeBuilding?.yardLinkEnabled) &&
+              Boolean(activeFloor) &&
+              floors.slice(0, 2).some((floor) => floor.id === activeFloor?.id))
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className={tool === item.id ? 'tool active' : 'tool'}
+              title={
+                item.id === 'yard_door' && !yardDoorOk
+                  ? 'Enable yard link and select one of the two lowest floors'
+                  : item.hint
+              }
+              disabled={!yardDoorOk}
+              onClick={() => setTool(item.id)}
+            >
+              {item.label}
+            </button>
+          )
+        })}
       </div>
 
       <div className="tool-group">
