@@ -4,6 +4,10 @@ import path from 'node:path'
 import { defineConfig, type Plugin } from 'vite'
 
 const STATE_FILE = path.resolve(import.meta.dirname, '.data/campus-state.json')
+const PUBLIC_STATE_FILE = path.resolve(
+  import.meta.dirname,
+  'public/campus-state.json',
+)
 
 function campusStateApi(): Plugin {
   return {
@@ -42,9 +46,12 @@ function campusStateApi(): Plugin {
           req.on('end', () => {
             try {
               const body = Buffer.concat(chunks).toString('utf8')
-              JSON.parse(body)
+              const parsed = JSON.parse(body)
+              const pretty = `${JSON.stringify(parsed, null, 2)}\n`
               fs.mkdirSync(path.dirname(STATE_FILE), { recursive: true })
-              fs.writeFileSync(STATE_FILE, body, 'utf8')
+              fs.writeFileSync(STATE_FILE, pretty, 'utf8')
+              fs.mkdirSync(path.dirname(PUBLIC_STATE_FILE), { recursive: true })
+              fs.writeFileSync(PUBLIC_STATE_FILE, pretty, 'utf8')
               res.statusCode = 204
               res.end()
             } catch (error) {

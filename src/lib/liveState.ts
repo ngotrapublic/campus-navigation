@@ -22,6 +22,9 @@ async function readJsonState(url: string): Promise<AppState | null> {
 }
 
 export async function publishCampusState(state: AppState): Promise<void> {
+  if (import.meta.env.PROD) {
+    return
+  }
   try {
     await fetch('/api/campus-state', {
       method: 'PUT',
@@ -34,9 +37,11 @@ export async function publishCampusState(state: AppState): Promise<void> {
 }
 
 export async function fetchCampusState(): Promise<AppState> {
-  const fromApi = await readJsonState('/api/campus-state')
-  if (fromApi) {
-    return fromApi
+  if (!import.meta.env.PROD) {
+    const fromApi = await readJsonState('/api/campus-state')
+    if (fromApi) {
+      return fromApi
+    }
   }
   const fromPublic = await readJsonState('/campus-state.json')
   if (fromPublic) {

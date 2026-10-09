@@ -11,9 +11,17 @@ import { normalizeSite } from '../../lib/site'
 
 function readQuery() {
   const params = new URLSearchParams(window.location.search)
+  const xRaw = params.get('x')
+  const yRaw = params.get('y')
+  const x = xRaw === null ? null : Number(xRaw)
+  const y = yRaw === null ? null : Number(yRaw)
   return {
     buildingId: params.get('b') ?? '',
     markerId: params.get('q') ?? '',
+    floorId: params.get('f') ?? '',
+    label: params.get('n') ?? '',
+    x: x !== null && Number.isFinite(x) ? x : null,
+    y: y !== null && Number.isFinite(y) ? y : null,
   }
 }
 
@@ -76,8 +84,22 @@ export function useGoNavigation() {
         }
       }
     }
+    if (
+      query.floorId &&
+      query.x !== null &&
+      query.y !== null
+    ) {
+      const floor = building.floors.find((item) => item.id === query.floorId)
+      if (floor) {
+        return {
+          floor,
+          point: { x: query.x, y: query.y } as Point,
+          label: query.label || query.markerId || 'QR',
+        }
+      }
+    }
     return null
-  }, [building, query.markerId])
+  }, [building, query])
 
   const destinations = useMemo(
     () => (building ? listDestinations(building) : []),

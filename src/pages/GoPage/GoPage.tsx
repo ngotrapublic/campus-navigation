@@ -47,7 +47,7 @@ export function GoPage() {
             ? 'Loading map…'
             : !building
               ? 'Building not found in published map.'
-              : 'QR marker not found. Re-print QR after placing the point.'}
+              : 'QR marker not found. Select the QR in Map Studio and re-print / scan the new code (it includes floor + position).'}
         </p>
       </div>
     )

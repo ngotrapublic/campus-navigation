@@ -14,16 +14,19 @@ export function useQrPreview(
     let cancelled = false
 
     async function loadQr() {
-      if (!selectedQr || !activeBuilding) {
+      if (!selectedQr || !activeBuilding || !activeFloor) {
         setQrDataUrl(null)
         setQrUrl(null)
         return
       }
-      const url = buildQrUrl(
-        window.location.origin,
-        activeBuilding.id,
-        selectedQr.id,
-      )
+      const url = buildQrUrl(window.location.origin, {
+        buildingId: activeBuilding.id,
+        markerId: selectedQr.id,
+        floorId: activeFloor.id,
+        x: selectedQr.x,
+        y: selectedQr.y,
+        label: selectedQr.label,
+      })
       setQrUrl(url)
       const dataUrl = await renderQrDataUrl(url)
       if (!cancelled) {
@@ -35,7 +38,7 @@ export function useQrPreview(
     return () => {
       cancelled = true
     }
-  }, [selectedQr, activeBuilding])
+  }, [selectedQr, activeBuilding, activeFloor])
 
   function printQr() {
     if (!qrDataUrl || !selectedQr || !activeBuilding || !activeFloor) {
