@@ -114,6 +114,32 @@ export function pointInAny(point: Point, rects: WalkRect[], pad = 0): boolean {
   return rects.some((rect) => pointInRect(point, rect, pad))
 }
 
+export function axisSegmentOnWalkable(
+  walkRects: WalkRect[],
+  a: Point,
+  b: Point,
+  pad = 0.5,
+): boolean {
+  if (walkRects.length === 0) {
+    return false
+  }
+  const dx = b.x - a.x
+  const dy = b.y - a.y
+  const length = Math.abs(dx) + Math.abs(dy)
+  if (length < EPSILON) {
+    return pointInAny(a, walkRects, pad)
+  }
+  const steps = Math.max(1, Math.ceil(length / (CELL / 2)))
+  for (let i = 0; i <= steps; i += 1) {
+    const t = i / steps
+    const point = { x: a.x + dx * t, y: a.y + dy * t }
+    if (!pointInAny(point, walkRects, pad)) {
+      return false
+    }
+  }
+  return true
+}
+
 export function pointInRect(point: Point, rect: WalkRect, pad = 0): boolean {
   return (
     point.x >= rect.x - pad &&
@@ -186,33 +212,49 @@ export function approachOnAxis(
       door
     )
   }
+  if (
+    pointInAny(door, walkRects, 0.5) ||
+    pointInAny(door, fallbackRects, 0.5)
+  ) {
+    const onDoor = approachPointForDoor(door, side, clearance)
+    if (
+      pointInAny(onDoor, walkRects, 0.5) ||
+      pointInAny(onDoor, fallbackRects, 0.5)
+    ) {
+      return onDoor
+    }
+  }
   const step = CELL / 2
-  const max = clearance * 4
-  const signs =
-    side === 'n' || side === 'w' ? ([-1, 1] as const) : ([1, -1] as const)
-  const candidates: Point[] = []
+  const max = Math.max(clearance * 2, CELL * 4)
+  const preferredSign =
+    side === 'n' || side === 'w' ? -1 : 1
+  const signs = [preferredSign, -preferredSign] as const
+  let best: Point | null = null
+  let bestDist = Infinity
   for (const sign of signs) {
-    for (let dist = clearance; dist <= max + 0.01; dist += step) {
+    for (let along = step; along <= max + 0.01; along += step) {
       const point =
         side === 'n' || side === 's'
-          ? { x: door.x, y: door.y + sign * dist }
-          : { x: door.x + sign * dist, y: door.y }
+          ? { x: door.x, y: door.y + sign * along }
+          : { x: door.x + sign * along, y: door.y }
       if (
-        pointInAny(point, walkRects, 0.5) ||
-        pointInAny(point, fallbackRects, 0.5)
+        !pointInAny(point, walkRects, 0.5) &&
+        !pointInAny(point, fallbackRects, 0.5)
       ) {
-        candidates.push(point)
+        continue
+      }
+      const d = dist(point, door)
+      const bias = sign === preferredSign ? 0 : clearance
+      if (d + bias < bestDist) {
+        bestDist = d + bias
+        best = point
+      }
+      if (sign === preferredSign && d >= clearance) {
         break
       }
     }
   }
-  if (candidates.length === 0) {
-    return approachPointForDoor(door, side, clearance)
-  }
-  const preferred = approachPointForDoor(door, side, clearance)
-  return candidates.sort(
-    (a, b) => dist(a, preferred) - dist(b, preferred),
-  )[0]
+  return best ?? approachPointForDoor(door, side, clearance)
 }
 
 function boundsOf(rects: WalkRect[]): WalkRect | null {
